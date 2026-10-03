@@ -1,6 +1,7 @@
 package dev.akshita.speclens.document;
 
 import java.util.List;
+import java.util.Map;
 
 import dev.akshita.speclens.ai.Vectors;
 import dev.akshita.speclens.ingest.ChunkDraft;
@@ -55,6 +56,28 @@ public class DocumentRepository {
 			ps.setString(5, chunk.content());
 			ps.setString(6, Vectors.toPgVector(embeddings.get(chunk.chunkIndex())));
 		});
+	}
+
+	public void insertGlossary(long documentId, Map<String, String> glossary) {
+		jdbcTemplate.batchUpdate("INSERT INTO glossary_term (document_id, short_form, long_form) VALUES (?, ?, ?)",
+				List.copyOf(glossary.entrySet()), 100, (ps, term) -> {
+					ps.setLong(1, documentId);
+					ps.setString(2, term.getKey());
+					ps.setString(3, term.getValue());
+				});
+	}
+
+	public List<GlossaryTerm> findGlossary(long projectId) {
+		return jdbc.sql("""
+				SELECT g.short_form, g.long_form, d.filename AS document_name
+				FROM glossary_term g
+				JOIN document d ON d.id = g.document_id
+				WHERE d.project_id = :projectId
+				ORDER BY d.id, g.short_form
+				""")
+				.param("projectId", projectId)
+				.query(GlossaryTerm.class)
+				.list();
 	}
 
 	public List<DocumentSummary> findByProject(long projectId) {

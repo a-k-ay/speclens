@@ -66,6 +66,20 @@ class AskApiIntegrationTest {
 	}
 
 	@Test
+	void abbreviationDefinedOnAnotherPageTravelsWithTheSource() throws Exception {
+		long project = createProject();
+		upload(project, "glossary.pdf", TestDocuments.pdf(
+				"Drivers capture an electronic proof of delivery (e-POD) in the app.",
+				"Billing. An invoice is generated within 48 hours of the e-POD upload."));
+		chatModel.reply("Within 48 hours [S1].");
+
+		ask(project, "How soon after delivery is the invoice generated?").exchange();
+
+		assertThat(chatModel.prompts().getFirst().getUserMessage().getText())
+				.contains("- e-POD: electronic proof of delivery (from glossary.pdf)");
+	}
+
+	@Test
 	void modelRefusalIsReturnedWithoutCitations() {
 		chatModel.reply("Not found in the uploaded documents.");
 

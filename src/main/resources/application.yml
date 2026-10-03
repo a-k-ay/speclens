@@ -1,3 +1,9 @@
+server:
+  # Render (and most PaaS) tell the app which port to listen on via PORT.
+  port: ${PORT:8080}
+  # Trust X-Forwarded-For from the platform's proxy, so rate limits see the real client IP.
+  forward-headers-strategy: native
+
 spring:
   application:
     name: speclens
@@ -29,9 +35,13 @@ spring:
         api-key: ${GEMINI_API_KEY:}
         chat:
           options:
-            model: gemini-3.5-flash-lite
-            # Low temperature: answers should restate the documents, not improvise.
-            temperature: 0.1
+            # Flash-Lite by default: Flash answers paraphrased questions better but its free
+            # tier allows only 20 requests a day. Set GEMINI_CHAT_MODEL=gemini-3.5-flash with a
+            # paid key. See docs/adr/0001.
+            model: ${GEMINI_CHAT_MODEL:gemini-3.5-flash-lite}
+            # Zero temperature: answers should restate the documents, not improvise, and
+            # should vary as little as possible between runs.
+            temperature: 0.0
             max-output-tokens: 600
         embedding:
           api-key: ${GEMINI_API_KEY:}
@@ -59,6 +69,16 @@ speclens:
     # Chosen from the evaluation set: lowest answerable similarity (0.639) minus a 0.05
     # safety margin. See docs/adr/0006 and docs/EVAL.md.
     min-similarity: 0.58
+  demo:
+    # Load the fictional sample documents into the demo project at startup (idempotent).
+    seed: ${DEMO_SEED:false}
+    project-name: Northwind Freight (sample client)
+    documents-dir: ${DEMO_DOCUMENTS_DIR:samples}
+  rate-limit:
+    # Protects the Gemini key on the public demo. Applies to ask, upload and story generation.
+    per-ip-per-minute: ${RATE_LIMIT_PER_IP_PER_MINUTE:10}
+    per-ip-per-day: ${RATE_LIMIT_PER_IP_PER_DAY:100}
+    global-per-day: ${RATE_LIMIT_GLOBAL_PER_DAY:500}
 
 management:
   endpoints:

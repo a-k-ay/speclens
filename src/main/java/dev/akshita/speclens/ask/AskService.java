@@ -4,6 +4,8 @@ import java.util.List;
 
 import dev.akshita.speclens.ai.AiUnavailableException;
 import dev.akshita.speclens.ai.EmbeddingService;
+import dev.akshita.speclens.document.DocumentRepository;
+import dev.akshita.speclens.document.GlossaryTerm;
 import dev.akshita.speclens.project.ProjectNotFoundException;
 import dev.akshita.speclens.project.ProjectRepository;
 import dev.akshita.speclens.retrieval.HybridRetriever;
@@ -22,14 +24,16 @@ public class AskService {
 	private static final Logger log = LoggerFactory.getLogger(AskService.class);
 
 	private final ProjectRepository projects;
+	private final DocumentRepository documents;
 	private final EmbeddingService embeddings;
 	private final HybridRetriever retriever;
 	private final RetrievalProperties retrievalProperties;
 	private final ChatClient chat;
 
-	public AskService(ProjectRepository projects, EmbeddingService embeddings, HybridRetriever retriever,
-			RetrievalProperties retrievalProperties, ChatClient.Builder chatClientBuilder) {
+	public AskService(ProjectRepository projects, DocumentRepository documents, EmbeddingService embeddings,
+			HybridRetriever retriever, RetrievalProperties retrievalProperties, ChatClient.Builder chatClientBuilder) {
 		this.projects = projects;
+		this.documents = documents;
 		this.embeddings = embeddings;
 		this.retriever = retriever;
 		this.retrievalProperties = retrievalProperties;
@@ -51,7 +55,9 @@ public class AskService {
 		}
 
 		// Layer 2: the model read the sources and said the answer isn't there.
-		String answer = generate(q, sources);
+		List<GlossaryTerm> definitions = GroundedPrompt.relevantDefinitions(documents.findGlossary(projectId), q,
+				sources);
+		String answer = generate(q, sources, definitions);
 		if (CitationParser.isRefusal(answer)) {
 			return AskResponse.refused(q, RefusalReason.NOT_IN_SOURCES);
 		}
@@ -80,12 +86,15 @@ public class AskService {
 		}
 	}
 
-	private String generate(String question, List<RetrievedChunk> sources) {
+	private String generate(String question, List<RetrievedChunk> sources, List<GlossaryTerm> definitions) {
+		String userMessage = GroundedPrompt.userMessage(question, sources, definitions);
+		// Enable with logging.level.dev.akshita.speclens.ask=DEBUG to see exactly what the model gets.
+		log.debug("Prompt user message:\n{}", userMessage);
 		String answer;
 		try {
 			answer = chat.prompt()
 					.system(GroundedPrompt.SYSTEM)
-					.user(GroundedPrompt.userMessage(question, sources))
+					.user(userMessage)
 					.call()
 					.content();
 		}

@@ -1,6 +1,7 @@
 package dev.akshita.speclens.ingest;
 
 import java.util.List;
+import java.util.Map;
 
 import dev.akshita.speclens.ai.AiUnavailableException;
 import dev.akshita.speclens.ai.EmbeddingService;
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
-/** Upload pipeline: validate -> extract pages -> chunk -> embed -> store. */
+/** Upload pipeline: validate -> extract pages -> chunk (+ find glossary terms) -> embed -> store. */
 @Service
 public class IngestionService {
 
@@ -25,25 +26,29 @@ public class IngestionService {
 	private final DocumentRepository documents;
 	private final TextExtractor extractor;
 	private final Chunker chunker;
+	private final GlossaryExtractor glossaryExtractor;
 	private final EmbeddingService embeddings;
 	private final TransactionTemplate transaction;
 
 	public IngestionService(IngestProperties properties, ProjectRepository projects, DocumentRepository documents,
-			TextExtractor extractor, Chunker chunker, EmbeddingService embeddings, TransactionTemplate transaction) {
+			TextExtractor extractor, Chunker chunker, GlossaryExtractor glossaryExtractor, EmbeddingService embeddings,
+			TransactionTemplate transaction) {
 		this.properties = properties;
 		this.projects = projects;
 		this.documents = documents;
 		this.extractor = extractor;
 		this.chunker = chunker;
+		this.glossaryExtractor = glossaryExtractor;
 		this.embeddings = embeddings;
 		this.transaction = transaction;
 	}
 
+	/**
+	 * Used by the upload endpoint and by the demo seeder. Whether public uploads are allowed
+	 * is checked by the endpoint, not here.
+	 */
 	public DocumentSummary ingest(long projectId, String originalFilename, byte[] bytes) {
-		// 1. Cheap checks first, so a bad upload never costs a Gemini call.
-		if (!properties.upload().enabled()) {
-			throw new UploadsDisabledException();
-		}
+		// 1. Cheap checks first, so a bad file never costs a Gemini call.
 		projects.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
 		String filename = cleanFilename(originalFilename);
 		if (documents.exists(projectId, filename)) {
@@ -58,6 +63,7 @@ public class IngestionService {
 					.formatted(pages.size(), properties.upload().maxPages()));
 		}
 		List<ChunkDraft> chunks = chunker.chunk(pages);
+		Map<String, String> glossary = glossaryExtractor.extract(pages);
 		if (chunks.isEmpty()) {
 			throw new UnsupportedDocumentException("No text found. Scanned (image-only) PDFs are not supported");
 		}
@@ -69,10 +75,11 @@ public class IngestionService {
 		long documentId = transaction.execute(status -> {
 			long id = documents.insertDocument(projectId, filename, format.contentType, pages.size());
 			documents.insertChunks(id, projectId, chunks, vectors);
+			documents.insertGlossary(id, glossary);
 			return id;
 		});
-		log.info("Ingested '{}' into project {}: {} pages, {} chunks", filename, projectId, pages.size(),
-				chunks.size());
+		log.info("Ingested '{}' into project {}: {} pages, {} chunks, {} glossary terms", filename, projectId,
+				pages.size(), chunks.size(), glossary.size());
 		return documents.findSummary(documentId);
 	}
 

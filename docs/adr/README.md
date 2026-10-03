@@ -10,3 +10,4 @@ Short records of decisions that shaped SpecLens: the context, what was decided, 
 | [0004](0004-page-bounded-chunking.md) | Page-bounded chunks of about 1,000 characters with 150-character overlap | Accepted |
 | [0005](0005-hybrid-retrieval-with-rrf.md) | Hybrid retrieval (pgvector + full-text) merged with Reciprocal Rank Fusion | Accepted |
 | [0006](0006-refusal-threshold.md) | Three-layer refusal, with a similarity threshold of 0.58 chosen from the eval set | Accepted |
+| [0007](0007-document-glossary.md) | Carry abbreviation definitions from the document into the prompt | Accepted |

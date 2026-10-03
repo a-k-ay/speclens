@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
+import dev.akshita.speclens.document.GlossaryTerm;
 import dev.akshita.speclens.retrieval.Candidate;
 import dev.akshita.speclens.retrieval.RetrievedChunk;
 import org.junit.jupiter.api.Test;
@@ -16,12 +17,29 @@ class GroundedPromptTest {
 				chunk("brd.pdf", 5, "Invoices within 24 hours."),
 				chunk("notes.docx", 1, "Invoices within 48 hours."));
 
-		String user = GroundedPrompt.userMessage("When are invoices sent?", sources);
+		String user = GroundedPrompt.userMessage("When are invoices sent?", sources, List.of());
 
 		assertThat(user)
 				.contains("<source id=\"S1\" document=\"brd.pdf\" page=\"5\">\nInvoices within 24 hours.\n</source>")
 				.contains("<source id=\"S2\" document=\"notes.docx\" page=\"1\">")
 				.endsWith("Question: When are invoices sent?");
+	}
+
+	@Test
+	void onlyDefinitionsUsedInTheSourcesOrQuestionAreIncluded() {
+		List<GlossaryTerm> glossary = List.of(
+				new GlossaryTerm("e-POD", "electronic proof of delivery", "brd.pdf"),
+				new GlossaryTerm("UAT", "user acceptance testing", "uat.pdf"),
+				new GlossaryTerm("POD", "point of dispatch", "other.pdf"));
+		List<RetrievedChunk> sources = List.of(chunk("brd.pdf", 5, "Invoice within 24 hours of the e-POD upload."));
+
+		List<GlossaryTerm> relevant = GroundedPrompt.relevantDefinitions(glossary, "When is the invoice sent?", sources);
+
+		// "POD" inside "e-POD" is not a separate token, and UAT isn't mentioned.
+		assertThat(relevant).extracting(GlossaryTerm::shortForm).containsExactly("e-POD");
+		assertThat(GroundedPrompt.userMessage("When is the invoice sent?", sources, relevant))
+				.contains("Definitions found in the documents:\n- e-POD: electronic proof of delivery (from brd.pdf)\n")
+				.endsWith("Question: When is the invoice sent?");
 	}
 
 	@Test

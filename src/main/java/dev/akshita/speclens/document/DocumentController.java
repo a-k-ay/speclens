@@ -3,8 +3,10 @@ package dev.akshita.speclens.document;
 import java.io.IOException;
 import java.util.List;
 
+import dev.akshita.speclens.ingest.IngestProperties;
 import dev.akshita.speclens.ingest.IngestionService;
 import dev.akshita.speclens.ingest.UnsupportedDocumentException;
+import dev.akshita.speclens.ingest.UploadsDisabledException;
 import dev.akshita.speclens.project.ProjectNotFoundException;
 import dev.akshita.speclens.project.ProjectRepository;
 
@@ -26,17 +28,24 @@ public class DocumentController {
 	private final IngestionService ingestion;
 	private final DocumentRepository documents;
 	private final ProjectRepository projects;
+	private final IngestProperties properties;
 
-	public DocumentController(IngestionService ingestion, DocumentRepository documents, ProjectRepository projects) {
+	public DocumentController(IngestionService ingestion, DocumentRepository documents, ProjectRepository projects,
+			IngestProperties properties) {
 		this.ingestion = ingestion;
 		this.documents = documents;
 		this.projects = projects;
+		this.properties = properties;
 	}
 
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@ResponseStatus(HttpStatus.CREATED)
 	public DocumentSummary upload(@PathVariable long projectId, @RequestParam("file") MultipartFile file)
 			throws IOException {
+		// The public demo turns uploads off (UPLOAD_ENABLED=false) and serves seeded documents.
+		if (!properties.upload().enabled()) {
+			throw new UploadsDisabledException();
+		}
 		if (file.isEmpty()) {
 			throw new UnsupportedDocumentException("The uploaded file is empty");
 		}

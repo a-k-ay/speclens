@@ -1,0 +1,22 @@
+# Local development database: Postgres 17 + pgvector, same versions as CI and Neon.
+# Start:  docker compose up -d     Stop: docker compose down     Wipe data: docker compose down -v
+services:
+  db:
+    image: pgvector/pgvector:0.8.7-pg17
+    container_name: speclens-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-speclens}
+      POSTGRES_USER: ${DB_USER:-speclens}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-speclens}
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    volumes:
+      - speclens-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-speclens} -d ${DB_NAME:-speclens}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  speclens-pgdata:

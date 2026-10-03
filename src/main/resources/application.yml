@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: speclens
+  # Read local secrets from .env (git-ignored). Missing file is fine: on Render the
+  # same keys come from real environment variables.
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/speclens}
+    username: ${DB_USER:speclens}
+    password: ${DB_PASSWORD:speclens}
+    hikari:
+      # Small pool: free-tier Neon and a 512 MB Render box don't need more.
+      maximum-pool-size: 5
+  flyway:
+    locations: classpath:db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

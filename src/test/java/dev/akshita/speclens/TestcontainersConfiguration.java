@@ -9,10 +9,15 @@ import org.testcontainers.utility.DockerImageName;
 @TestConfiguration(proxyBeanMethods = false)
 class TestcontainersConfiguration {
 
+	// Same image as docker-compose.yml and Neon (Postgres 17 + pgvector), so tests
+	// run against the real vector extension, not an in-memory stand-in.
+	static final DockerImageName PGVECTOR_IMAGE =
+			DockerImageName.parse("pgvector/pgvector:0.8.7-pg17").asCompatibleSubstituteFor("postgres");
+
 	@Bean
 	@ServiceConnection
 	PostgreSQLContainer postgresContainer() {
-		return new PostgreSQLContainer(DockerImageName.parse("postgres:latest"));
+		return new PostgreSQLContainer(PGVECTOR_IMAGE);
 	}
 
 }

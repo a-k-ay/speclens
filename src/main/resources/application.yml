@@ -12,6 +12,10 @@ spring:
     hikari:
       # Small pool: free-tier Neon and a 512 MB Render box don't need more.
       maximum-pool-size: 5
+      # With a project_id filter, a plain HNSW scan can return fewer than LIMIT rows when
+      # most nearest neighbours belong to other projects. pgvector 0.8 iterative scans keep
+      # searching until enough matching rows are found, in exact distance order.
+      connection-init-sql: SET hnsw.iterative_scan = strict_order
   flyway:
     locations: classpath:db/migration
   servlet:
@@ -26,7 +30,9 @@ spring:
         chat:
           options:
             model: gemini-3.5-flash-lite
+            # Low temperature: answers should restate the documents, not improvise.
             temperature: 0.1
+            max-output-tokens: 600
         embedding:
           api-key: ${GEMINI_API_KEY:}
           text:
@@ -44,6 +50,11 @@ speclens:
     # Characters, not tokens. See docs/adr/0004.
     size: 1000
     overlap: 150
+  retrieval:
+    # Each search returns this many candidates; RRF merges them and keeps top-k.
+    candidates: 20
+    top-k: 5
+    rrf-k: 60
 
 management:
   endpoints:

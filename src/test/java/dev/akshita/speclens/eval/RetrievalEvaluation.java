@@ -131,10 +131,10 @@ class RetrievalEvaluation {
 			AskResponse response = askService.ask(projectId, q.question());
 			return new UnanswerableResult(q, topSimilarity(hybridTop),
 					describe(hybridTop.isEmpty() ? null : hybridTop.getFirst()), !response.answered(),
-					response.answer(), null);
+					String.valueOf(response.refusalReason()), response.answer(), null);
 		}
 		catch (RuntimeException ex) {
-			return new UnanswerableResult(q, 0, "", false, "", ex.toString());
+			return new UnanswerableResult(q, 0, "", false, "", "", ex.toString());
 		}
 	}
 

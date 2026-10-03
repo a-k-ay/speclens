@@ -73,6 +73,7 @@ class AskApiIntegrationTest {
 				.hasStatusOk()
 				.bodyJson()
 				.hasPathSatisfying("$.answered", v -> v.assertThat().isEqualTo(false))
+				.hasPathSatisfying("$.refusalReason", v -> v.assertThat().isEqualTo("NOT_IN_SOURCES"))
 				.hasPathSatisfying("$.answer", v -> v.assertThat().isEqualTo("Not found in the uploaded documents."))
 				.hasPathSatisfying("$.citations", v -> v.assertThat().asArray().isEmpty());
 	}
@@ -84,7 +85,9 @@ class AskApiIntegrationTest {
 			chatModel.reply(reply);
 
 			assertThat(ask(projectId, "When is the invoice sent?"))
-					.bodyJson().hasPathSatisfying("$.answered", v -> v.assertThat().isEqualTo(false));
+					.bodyJson()
+					.hasPathSatisfying("$.answered", v -> v.assertThat().isEqualTo(false))
+					.hasPathSatisfying("$.refusalReason", v -> v.assertThat().isEqualTo("UNGROUNDED_ANSWER"));
 		}
 	}
 
@@ -93,7 +96,9 @@ class AskApiIntegrationTest {
 		long empty = createProject();
 
 		assertThat(ask(empty, "When is the invoice sent?"))
-				.bodyJson().hasPathSatisfying("$.answered", v -> v.assertThat().isEqualTo(false));
+				.bodyJson()
+				.hasPathSatisfying("$.answered", v -> v.assertThat().isEqualTo(false))
+				.hasPathSatisfying("$.refusalReason", v -> v.assertThat().isEqualTo("NO_RELEVANT_SOURCES"));
 		assertThat(chatModel.prompts()).isEmpty();
 	}
 

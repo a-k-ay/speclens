@@ -55,6 +55,10 @@ speclens:
     candidates: 20
     top-k: 5
     rrf-k: 60
+    # Refuse without calling the model when the best source is less similar than this.
+    # Chosen from the evaluation set: lowest answerable similarity (0.639) minus a 0.05
+    # safety margin. See docs/adr/0006 and docs/EVAL.md.
+    min-similarity: 0.58
 
 management:
   endpoints:

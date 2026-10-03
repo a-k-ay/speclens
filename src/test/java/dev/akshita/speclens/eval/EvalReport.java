@@ -23,7 +23,7 @@ record EvalReport(List<AnswerableResult> answerable, List<UnanswerableResult> un
 	}
 
 	record UnanswerableResult(GoldenSet.Unanswerable question, double topSimilarity, String topSource,
-			boolean refused, String answer, String error) {
+			boolean refused, String refusalReason, String answer, String error) {
 	}
 
 	String summaryLine() {
@@ -100,13 +100,17 @@ record EvalReport(List<AnswerableResult> answerable, List<UnanswerableResult> un
 					.append(" |\n");
 		}
 		md.append("\n## Unanswerable questions\n\n")
-				.append("| ID | Question | Best source | Best sim. | Refused |\n|---|---|---|---|---|\n");
+				.append("Refusal layers: `NO_RELEVANT_SOURCES` = similarity threshold, no model call; ")
+				.append("`NOT_IN_SOURCES` = the model found no answer in the sources; ")
+				.append("`UNGROUNDED_ANSWER` = answer withheld because it cited no real source.\n\n")
+				.append("| ID | Question | Best source | Best sim. | Refused | Refused by |\n|---|---|---|---|---|---|\n");
 		for (UnanswerableResult r : unanswerable) {
 			md.append("| ").append(r.question().id())
 					.append(" | ").append(cell(r.question().question()))
 					.append(" | ").append(cell(r.topSource()))
 					.append(" | ").append(fmt(r.topSimilarity()))
 					.append(" | ").append(tick(r.refused()))
+					.append(" | ").append(r.refused() ? "`" + r.refusalReason() + "`" : "")
 					.append(" |\n");
 		}
 

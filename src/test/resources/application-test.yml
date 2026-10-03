@@ -15,3 +15,7 @@ spring:
 speclens:
   upload:
     max-pages: 5
+  retrieval:
+    # Fake bag-of-words embeddings give much lower similarities than Gemini, so the
+    # threshold is off in tests; AskThresholdIntegrationTest checks it explicitly.
+    min-similarity: 0.0

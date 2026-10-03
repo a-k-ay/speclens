@@ -7,6 +7,7 @@ import dev.akshita.speclens.ai.EmbeddingService;
 import dev.akshita.speclens.project.ProjectNotFoundException;
 import dev.akshita.speclens.project.ProjectRepository;
 import dev.akshita.speclens.retrieval.HybridRetriever;
+import dev.akshita.speclens.retrieval.RetrievalProperties;
 import dev.akshita.speclens.retrieval.RetrievedChunk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,13 +24,15 @@ public class AskService {
 	private final ProjectRepository projects;
 	private final EmbeddingService embeddings;
 	private final HybridRetriever retriever;
+	private final RetrievalProperties retrievalProperties;
 	private final ChatClient chat;
 
 	public AskService(ProjectRepository projects, EmbeddingService embeddings, HybridRetriever retriever,
-			ChatClient.Builder chatClientBuilder) {
+			RetrievalProperties retrievalProperties, ChatClient.Builder chatClientBuilder) {
 		this.projects = projects;
 		this.embeddings = embeddings;
 		this.retriever = retriever;
+		this.retrievalProperties = retrievalProperties;
 		this.chat = chatClientBuilder.build();
 	}
 
@@ -38,23 +41,34 @@ public class AskService {
 		String q = question.strip();
 
 		List<RetrievedChunk> sources = retriever.retrieve(projectId, q, embedQuestion(q));
-		if (sources.isEmpty()) {
-			// Nothing to ground an answer in, so don't spend a model call.
-			return AskResponse.refused(q);
+
+		// Layer 1: nothing close enough to the question, so don't spend a model call.
+		double best = bestSimilarity(sources);
+		if (best < retrievalProperties.minSimilarity() || sources.isEmpty()) {
+			log.info("Refused before model call: best similarity {} < {} (project {})", best,
+					retrievalProperties.minSimilarity(), projectId);
+			return AskResponse.refused(q, RefusalReason.NO_RELEVANT_SOURCES);
 		}
 
+		// Layer 2: the model read the sources and said the answer isn't there.
 		String answer = generate(q, sources);
 		if (CitationParser.isRefusal(answer)) {
-			return AskResponse.refused(q);
+			return AskResponse.refused(q, RefusalReason.NOT_IN_SOURCES);
 		}
+
+		// Layer 3: an answer that cites no real source can't be checked against the
+		// documents, so it is withheld.
 		List<Integer> cited = CitationParser.citedSourceIndexes(answer, sources.size());
 		if (cited.isEmpty()) {
-			// An answer that cites nothing can't be checked against the documents, so it is
-			// treated as ungrounded and not shown.
 			log.warn("Suppressed uncited answer for project {}: {}", projectId, answer);
-			return AskResponse.refused(q);
+			return AskResponse.refused(q, RefusalReason.UNGROUNDED_ANSWER);
 		}
-		return new AskResponse(q, answer.strip(), true, toCitations(cited, sources));
+		return AskResponse.answered(q, answer.strip(), toCitations(cited, sources));
+	}
+
+	/** Highest cosine similarity between the question and any retrieved source (0 if none). */
+	static double bestSimilarity(List<RetrievedChunk> sources) {
+		return sources.stream().mapToDouble(s -> s.chunk().similarity()).max().orElse(0);
 	}
 
 	private float[] embedQuestion(String question) {

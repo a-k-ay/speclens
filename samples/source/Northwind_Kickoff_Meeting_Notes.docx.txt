@@ -1,0 +1,32 @@
+# FreightDesk Kickoff Meeting - Notes
+
+Date: 4 September 2026, 11:00-12:30 IST, Northwind office, Pune
+Attendees: Anita Rao, Vikram Shah, Meera Iyer, Sandeep Kulkarni (Northwind); Priya Nair (Brightline project manager), R. Menon (business analyst)
+
+# Decisions
+
+1. Invoice timing changed: invoices will be generated within 48 hours of the e-POD upload, not 24 hours as written in the BRD. Finance needs one business day to review e-POD photos before billing. Meera Iyer to raise a change request to update BR-8.1.
+
+2. SMS provider: Northwind will use TextFlow for booking confirmations and tracking links.
+
+3. Pilot route: the first live trips will run on the Pune-Mumbai corridor only. Pune-Ahmedabad follows two weeks after go-live.
+
+4. Hazardous cargo bookings will be approved by Sandeep Kulkarni, as the Dispatch lead.
+---page---
+# Action items
+
+- Vikram Shah to share sample consignment data by 18 September 2026.
+- Meera Iyer to confirm the GST invoice format by 12 September 2026.
+- Priya Nair to share UI wireframes for the booking screens by 25 September 2026.
+- R. Menon to update the BRD to version 1.3 after the invoice timing change request is approved.
+
+# Open questions
+
+- Can customers edit a booking after it has been confirmed, or must they cancel and rebook?
+- Does the driver app need Marathi language support in Phase 1?
+
+# Risks
+
+About 30 percent of drivers use feature phones and cannot run the app. Mitigation: Northwind will buy 15 Android devices for shared use at the Pune depot.
+
+Next meeting: 11 September 2026, 11:00 IST.

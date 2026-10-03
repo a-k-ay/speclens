@@ -1,0 +1,101 @@
+# Northwind Freight - Business Requirements Document
+# FreightDesk Platform, Phase 1
+
+Document version: 1.2
+Date: 12 August 2026
+Prepared by: R. Menon, Business Analyst
+Approved by: Anita Rao, Chief Operating Officer
+Status: Approved for build
+
+# 1. Purpose
+
+This document defines the business requirements for FreightDesk, a web portal and driver mobile app that will replace the spreadsheets and phone calls Northwind Freight currently uses to book, track and bill road freight. It is the reference for design, build and user acceptance testing in Phase 1.
+
+# 2. Background
+
+Northwind Freight Pvt. Ltd. is a road freight company headquartered in Pune with a fleet of 140 trucks and about 220 drivers, serving manufacturing customers across Maharashtra and Gujarat. Today, bookings arrive by phone and email, dispatchers track trucks by calling drivers, and invoices are typed manually from paper delivery receipts. On average an invoice is raised 6 days after delivery, and 1 in 12 invoices is disputed because of missing proof of delivery.
+---page---
+# 3. Scope
+
+In scope for Phase 1:
+- Online booking of shipments by customers through a self-service portal.
+- Live tracking of trucks and shipments.
+- Electronic proof of delivery (e-POD) captured by drivers.
+- Invoicing, credit notes and export of accounting data.
+- Operational and management reporting.
+
+Phase 1 covers the Pune-Mumbai and Pune-Ahmedabad corridors. Other routes will be onboarded in Phase 2.
+
+# 4. Stakeholders
+
+- Executive sponsor: Anita Rao, Chief Operating Officer.
+- Product owner: Vikram Shah, Head of Operations.
+- Finance lead: Meera Iyer, Finance Manager.
+- Dispatch lead: Sandeep Kulkarni, Senior Dispatcher.
+- End users: customers, dispatchers, drivers and finance staff.
+
+# 5. User roles
+
+The system shall support five roles: Admin, Dispatcher, Driver, Customer and Finance. A user may hold only one role. Customers can only see bookings that belong to their own company account.
+---page---
+# 6. Functional requirements - Booking
+
+BR-6.1 Customers shall create bookings through the web portal by entering pickup address, drop address, pickup date, cargo type and weight.
+
+BR-6.2 The system shall send a booking confirmation by email and SMS within 2 minutes of a booking being submitted.
+
+BR-6.3 A single booking may contain at most 20 consignments.
+
+BR-6.4 Customers may cancel a booking free of charge up to 6 hours before the scheduled pickup time. Cancellations made later than that attract a cancellation fee of 15 percent of the quoted freight charge.
+
+BR-6.5 Dispatchers shall assign a truck and driver to each confirmed booking. The system shall prevent assigning a truck whose registered capacity is lower than the booking weight.
+
+BR-6.6 Bookings for hazardous cargo shall require approval from the Dispatch lead before a truck is assigned.
+---page---
+# 7. Functional requirements - Tracking and proof of delivery
+
+BR-7.1 The driver mobile app shall send the truck's GPS location every 5 minutes while a trip is in progress.
+
+BR-7.2 Customers shall receive a tracking link by SMS when their shipment is picked up. The link shall show the latest location and the estimated time of arrival.
+
+BR-7.3 Drivers shall capture an electronic proof of delivery (e-POD) in the mobile app, consisting of a photo of the delivered goods and the recipient's signature.
+
+BR-7.4 When there is no mobile network, the app shall store up to 50 e-PODs offline and upload them automatically when the network returns.
+
+BR-7.5 A shipment shall be marked Delivered only after its e-POD has been uploaded successfully.
+---page---
+# 8. Functional requirements - Billing
+
+BR-8.1 The system shall generate a customer invoice within 24 hours of the e-POD being uploaded.
+
+BR-8.2 Invoices shall be raised in Indian Rupees (INR) and include GST at 18 percent.
+
+BR-8.3 Credit notes above INR 50,000 shall require approval from the Finance Manager before they are issued.
+
+BR-8.4 Standard payment terms for customers are net 30 days from the invoice date.
+
+BR-8.5 The system shall export invoices and credit notes to Tally ERP every night at 23:00 IST.
+
+# 9. Functional requirements - Reporting
+
+BR-9.1 Operations managers shall see a dashboard of delayed shipments, refreshed every 15 minutes.
+
+BR-9.2 A weekly carrier performance report shall be emailed to the Head of Operations every Monday at 08:00 IST.
+
+BR-9.3 Finance shall be able to download a monthly ageing report of unpaid invoices as an Excel file.
+---page---
+# 10. Non-functional requirements
+
+NFR-1 Availability: the portal and mobile app shall be available 99.5 percent of each calendar month, excluding planned maintenance on Sundays between 01:00 and 03:00 IST.
+
+NFR-2 Performance: portal pages shall load in under 3 seconds with 200 concurrent users.
+
+NFR-3 Data residency: all customer and shipment data shall be stored in India (AWS Mumbai region).
+
+NFR-4 Security: users shall sign in with a password and a one-time code sent by SMS. Sessions expire after 30 minutes of inactivity.
+
+NFR-5 Audit: every change to a booking, invoice or credit note shall be recorded in an audit log that is retained for 7 years.
+
+# 11. Out of scope
+
+The following are out of scope for Phase 1: customs clearance, warehouse slot booking, fuel card integration and an iOS version of the driver app. Fuel card integration is planned for Phase 2.

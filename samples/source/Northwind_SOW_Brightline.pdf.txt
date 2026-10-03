@@ -1,0 +1,58 @@
+# Statement of Work NWF-SOW-007
+# FreightDesk Implementation
+
+Customer: Northwind Freight Pvt. Ltd., Pune
+Supplier: Brightline Digital Services LLP, Bengaluru
+Effective date: 1 September 2026
+
+This Statement of Work describes the services Brightline Digital Services ("Brightline") will provide to Northwind Freight ("Northwind") to design, build and launch the FreightDesk platform described in the Business Requirements Document version 1.2.
+
+# 1. Deliverables
+
+D1 FreightDesk customer and staff web portal.
+D2 Driver mobile app for Android. An iOS app is not included.
+D3 Integration with Tally ERP for invoices and credit notes.
+D4 Training for up to 25 Northwind users, delivered as three on-site sessions in Pune.
+D5 User guides and an administrator runbook.
+---page---
+# 2. Timeline and milestones
+
+M1 Design sign-off: 30 September 2026.
+M2 Start of user acceptance testing (UAT): 15 December 2026.
+M3 Go-live: 2 February 2027.
+
+After go-live, Brightline will provide 30 days of hypercare support, with a named engineer available from 09:00 to 19:00 IST on business days.
+
+# 3. Team
+
+Brightline will provide a project manager, a business analyst, three developers, one QA engineer and a part-time solution architect. Northwind will provide a product owner (Vikram Shah) who is available for at least 10 hours per week.
+---page---
+# 4. Commercials
+
+The fixed fee for the deliverables in this SOW is INR 4,800,000 (forty-eight lakh rupees), excluding GST.
+
+Payment schedule:
+- 20 percent on signing of this SOW.
+- 30 percent on M1 Design sign-off.
+- 30 percent on M2 Start of UAT.
+- 20 percent on M3 Go-live.
+
+Brightline invoices are payable within 30 days of receipt. Late payments attract interest of 1.5 percent per month.
+
+# 5. Change requests
+
+Any change to scope must be requested in writing. Brightline will provide an impact assessment of cost and schedule within 5 business days. A change is approved only when signed by the sponsors of both parties. Additional work is charged at INR 6,500 per person-day.
+---page---
+# 6. Acceptance
+
+UAT will run for 3 weeks. A deliverable is accepted when no Severity 1 or Severity 2 defects remain open. Northwind will accept or reject each deliverable within 10 business days of it being presented; if Northwind does not respond in that time, the deliverable is deemed accepted.
+
+# 7. Assumptions
+
+- Northwind will provide anonymised test data by 15 November 2026.
+- Northwind will provide Android devices for drivers who do not own a smartphone.
+- SMS and email sending costs are paid by Northwind.
+
+# 8. Warranty and governance
+
+Brightline will fix defects reported within 90 days after go-live at no extra cost. A status meeting will be held every Thursday, and a steering committee chaired by Anita Rao will meet monthly.

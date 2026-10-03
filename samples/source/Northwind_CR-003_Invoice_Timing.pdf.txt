@@ -1,0 +1,26 @@
+# Change Request CR-003
+# Invoice generation window
+
+Project: FreightDesk implementation (SOW NWF-SOW-007)
+Raised by: Meera Iyer, Finance Manager, Northwind Freight
+Date raised: 8 September 2026
+Status: Approved
+
+# 1. Requested change
+
+Change requirement BR-8.1 in the Business Requirements Document. Current wording: the system shall generate a customer invoice within 24 hours of the e-POD being uploaded. New wording: the system shall generate a customer invoice within 48 hours of the e-POD being uploaded, after a finance user has reviewed the e-POD photo.
+
+# 2. Reason
+
+During the kickoff meeting on 4 September 2026, Finance explained that about 1 in 12 invoices is disputed today because proof of delivery is missing or unclear. A review step before billing is expected to reduce disputes. The review needs up to one business day.
+---page---
+# 3. Impact assessment (by Brightline)
+
+- Effort: 3 person-days to add a finance review queue and change the invoice scheduler.
+- Cost: INR 19,500, charged as additional work under the SOW change request process.
+- Schedule: no change to milestone M2 (start of UAT) or M3 (go-live).
+- Other requirements affected: none. BR-8.4 payment terms (net 30 days from invoice date) are unchanged.
+
+# 4. Approval
+
+Approved on 20 September 2026 by Anita Rao (Northwind sponsor) and Rahul Desai (Brightline sponsor). The Business Requirements Document will be updated to version 1.3 to reflect this change.

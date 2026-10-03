@@ -1,0 +1,31 @@
+# FreightDesk - Weekly Status Report, Week 6
+
+Reporting period: 5 to 9 October 2026
+Prepared by: Priya Nair, Brightline project manager
+Overall status: AMBER
+
+# Summary
+
+Design was signed off on 30 September 2026 (milestone M1). Build has started on the booking and tracking modules. Go-live remains planned for 2 February 2027, but the Tally integration is at risk.
+
+# Progress
+
+- Booking module: 40 percent built.
+- Tracking module: 25 percent built.
+- Driver app: login and trip list screens done.
+- Budget used to date: INR 1,440,000 of INR 4,800,000 (30 percent), in line with the payment schedule.
+---page---
+# Risks and issues
+
+R-07 Tally access: Northwind's Tally server administrator has not yet shared API credentials. Without them, the invoice export (BR-8.5) cannot be tested. Owner: Meera Iyer. Due: 16 October 2026.
+
+R-08 Device purchase: the 15 shared Android devices have been ordered and are expected by 30 October 2026.
+
+# Decisions this week
+
+- Marathi language support for the driver app is deferred to Phase 2. Phase 1 ships in English only.
+- The UAT test plan draft will be reviewed in the status meeting on Thursday 15 October 2026.
+
+# Next week
+
+Complete booking module APIs, start finance review queue for CR-003, and close risk R-07.

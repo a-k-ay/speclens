@@ -3,7 +3,10 @@
   "documents": [
     "samples/Northwind_BRD_v1.2.pdf",
     "samples/Northwind_SOW_Brightline.pdf",
-    "samples/Northwind_Kickoff_Meeting_Notes.docx"
+    "samples/Northwind_Kickoff_Meeting_Notes.docx",
+    "samples/Northwind_CR-003_Invoice_Timing.pdf",
+    "samples/Northwind_UAT_Test_Plan.pdf",
+    "samples/Northwind_Status_Report_Week6.pdf"
   ],
   "answerable": [
     {
@@ -35,102 +38,106 @@
     },
     {
       "id": "Q05",
-      "question": "What is the maximum number of consignments allowed in one booking?",
-      "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 3 }],
-      "answerMustContain": ["20"]
-    },
-    {
-      "id": "Q06",
       "question": "If a customer cancels two hours before pickup, do they pay anything?",
       "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 3 }],
       "answerMustContain": ["15"]
     },
     {
-      "id": "Q07",
+      "id": "Q06",
       "question": "How frequently does the driver app report the truck's position?",
       "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 4 }],
       "answerMustContain": ["5 minutes"]
     },
     {
-      "id": "Q08",
+      "id": "Q07",
       "question": "What does BR-7.4 require?",
       "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 4 }],
       "answerMustContain": ["50"]
     },
     {
-      "id": "Q09",
+      "id": "Q08",
       "question": "Within how many hours of the e-POD must the customer invoice be produced?",
       "expected": [
         { "document": "Northwind_BRD_v1.2.pdf", "page": 5 },
-        { "document": "Northwind_Kickoff_Meeting_Notes.docx", "page": 1 }
+        { "document": "Northwind_Kickoff_Meeting_Notes.docx", "page": 1 },
+        { "document": "Northwind_CR-003_Invoice_Timing.pdf", "page": 1 }
       ],
       "answerMustContain": ["48"]
     },
     {
-      "id": "Q10",
-      "question": "What tax rate is added to customer invoices?",
-      "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 5 }],
-      "answerMustContain": ["18"]
-    },
-    {
-      "id": "Q11",
+      "id": "Q09",
       "question": "At what time are invoices sent to the accounting system each night?",
       "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 5 }],
       "answerMustContain": ["23:00"]
     },
     {
-      "id": "Q12",
-      "question": "What availability percentage must the platform achieve?",
-      "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 6 }],
-      "answerMustContain": ["99.5"]
-    },
-    {
-      "id": "Q13",
+      "id": "Q10",
       "question": "In which country or cloud region must customer data be kept?",
       "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 6 }],
       "answerMustContain": ["Mumbai"]
     },
     {
-      "id": "Q14",
+      "id": "Q11",
       "question": "When is the system planned to go live?",
-      "expected": [{ "document": "Northwind_SOW_Brightline.pdf", "page": 2 }],
+      "expected": [
+        { "document": "Northwind_SOW_Brightline.pdf", "page": 2 },
+        { "document": "Northwind_Status_Report_Week6.pdf", "page": 1 }
+      ],
       "answerMustContain": ["2 February 2027"]
     },
     {
-      "id": "Q15",
-      "question": "How many days of hypercare support follow the launch?",
-      "expected": [{ "document": "Northwind_SOW_Brightline.pdf", "page": 2 }],
-      "answerMustContain": ["30"]
-    },
-    {
-      "id": "Q16",
+      "id": "Q12",
       "question": "What is the total fixed price of the implementation?",
       "expected": [{ "document": "Northwind_SOW_Brightline.pdf", "page": 3 }],
       "answerMustContain": ["4,800,000"]
     },
     {
-      "id": "Q17",
+      "id": "Q13",
       "question": "What is the daily rate charged for extra work from change requests?",
       "expected": [{ "document": "Northwind_SOW_Brightline.pdf", "page": 3 }],
       "answerMustContain": ["6,500"]
     },
     {
-      "id": "Q18",
+      "id": "Q14",
       "question": "How many business days does Northwind have to accept or reject a deliverable?",
       "expected": [{ "document": "Northwind_SOW_Brightline.pdf", "page": 4 }],
       "answerMustContain": ["10"]
     },
     {
-      "id": "Q19",
+      "id": "Q15",
       "question": "Which company will send the SMS messages?",
       "expected": [{ "document": "Northwind_Kickoff_Meeting_Notes.docx", "page": 1 }],
       "answerMustContain": ["TextFlow"]
     },
     {
-      "id": "Q20",
+      "id": "Q16",
       "question": "What risk was raised about drivers' phones, and what is the mitigation?",
       "expected": [{ "document": "Northwind_Kickoff_Meeting_Notes.docx", "page": 2 }],
       "answerMustContain": ["15"]
+    },
+    {
+      "id": "Q17",
+      "question": "How much did the invoice timing change cost?",
+      "expected": [{ "document": "Northwind_CR-003_Invoice_Timing.pdf", "page": 2 }],
+      "answerMustContain": ["19,500"]
+    },
+    {
+      "id": "Q18",
+      "question": "What pass rate is needed to exit UAT?",
+      "expected": [{ "document": "Northwind_UAT_Test_Plan.pdf", "page": 4 }],
+      "answerMustContain": ["95"]
+    },
+    {
+      "id": "Q19",
+      "question": "Which test case covers BR-6.3?",
+      "expected": [{ "document": "Northwind_UAT_Test_Plan.pdf", "page": 2 }],
+      "answerMustContain": ["TC-B-02"]
+    },
+    {
+      "id": "Q20",
+      "question": "Will the driver app support Marathi in Phase 1?",
+      "expected": [{ "document": "Northwind_Status_Report_Week6.pdf", "page": 2 }],
+      "answerMustContain": ["Phase 2"]
     }
   ],
   "unanswerable": [
@@ -139,6 +146,7 @@
     { "id": "N03", "question": "Which payment gateway will customers use to pay online?" },
     { "id": "N04", "question": "Will the driver app be available in Hindi?" },
     { "id": "N05", "question": "What is the salary of the Brightline project manager?" },
-    { "id": "N06", "question": "What is the capital of France?" }
+    { "id": "N06", "question": "What is the capital of France?" },
+    { "id": "N07", "question": "How many defects were found during UAT?" }
   ]
 }

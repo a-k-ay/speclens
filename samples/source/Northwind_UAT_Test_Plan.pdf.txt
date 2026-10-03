@@ -1,0 +1,45 @@
+# FreightDesk - User Acceptance Test Plan
+
+Version: 0.9 (draft for review)
+Owner: R. Menon, Business Analyst
+Date: 28 September 2026
+
+# 1. Purpose and scope
+
+This plan describes how Northwind Freight will test FreightDesk before go-live. UAT covers the web portal, the Android driver app and the Tally export. Performance testing and security penetration testing are run separately by Brightline and are not part of UAT.
+
+# 2. Schedule and team
+
+UAT runs from 15 December 2026 to 5 January 2027. Six Northwind users will test: two dispatchers, two finance staff, one customer service agent and one driver supervisor. A defect triage call is held every business day at 10:00 IST, chaired by Vikram Shah.
+---page---
+# 3. Test cases - Booking
+
+TC-B-01 Create a booking with pickup address, drop address, date, cargo type and weight. Expected: booking is saved and a confirmation is sent. Covers BR-6.1 and BR-6.2.
+
+TC-B-02 Try to add 21 consignments to one booking. Expected: the system blocks the 21st consignment with a clear message. Covers BR-6.3.
+
+TC-B-03 Cancel a booking 3 hours before pickup. Expected: the cancellation fee is shown before the customer confirms. Covers BR-6.4.
+
+TC-B-04 Assign a 5-tonne truck to an 8-tonne booking. Expected: the assignment is rejected. Covers BR-6.5.
+---page---
+# 4. Test cases - Tracking, delivery and billing
+
+TC-T-01 Start a trip and watch the dashboard. Expected: the truck position moves at least every 5 minutes. Covers BR-7.1.
+
+TC-T-04 Switch the phone to airplane mode, capture e-PODs, then reconnect. Expected: stored e-PODs upload automatically. Covers BR-7.4.
+
+TC-I-01 Upload an e-POD and complete finance review. Expected: an invoice with GST is generated within the agreed window (48 hours, per CR-003). Covers BR-8.1 and BR-8.2.
+
+TC-I-03 Raise a credit note of INR 60,000. Expected: it waits for Finance Manager approval. Covers BR-8.3.
+---page---
+# 5. Entry and exit criteria
+
+Entry: all Phase 1 features deployed to the UAT environment, test data loaded, and testers trained.
+
+Exit: at least 95 percent of test cases passed, and no open Severity 1 or Severity 2 defects.
+
+# 6. Defect severity
+
+- Severity 1: system unavailable or data lost, no workaround. Target fix: 24 hours.
+- Severity 2: a core function fails, workaround exists. Target fix: 3 business days.
+- Severity 3: minor function or cosmetic issue. Fixed before go-live if time allows.

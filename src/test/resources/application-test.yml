@@ -1,0 +1,17 @@
+# Test profile: no real Gemini calls, ever. CI has no API key.
+spring:
+  ai:
+    model:
+      # Switch off Spring AI's real Gemini beans; FakeAiConfiguration provides fakes.
+      chat: none
+      embedding:
+        text: none
+    google:
+      genai:
+        # Placeholder so Spring AI's connection auto-configuration can start; never used.
+        api-key: test-key-not-used
+        embedding:
+          api-key: test-key-not-used
+speclens:
+  upload:
+    max-pages: 5

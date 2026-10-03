@@ -2,21 +2,16 @@ package dev.akshita.speclens.project;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import dev.akshita.speclens.TestcontainersConfiguration;
+import dev.akshita.speclens.IntegrationTest;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 /** Full stack: HTTP -> controller -> JdbcClient -> real Postgres (pgvector) in a container. */
-@SpringBootTest
-@AutoConfigureMockMvc
-@Import(TestcontainersConfiguration.class)
+@IntegrationTest
 class ProjectApiIntegrationTest {
 
 	@Autowired

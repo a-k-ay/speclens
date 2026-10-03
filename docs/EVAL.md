@@ -82,38 +82,40 @@ If questions whose best source is below the threshold were refused before callin
 
 ## Unanswerable questions
 
-| ID | Question | Best source | Best sim. | Refused |
-|---|---|---|---|---|
-| N01 | What is the penalty for late delivery of a shipment? | Northwind_BRD_v1.2.pdf p.1 | 0.652 | yes |
-| N02 | Which cloud region hosts the disaster recovery site? | Northwind_BRD_v1.2.pdf p.6 | 0.634 | yes |
-| N03 | Which payment gateway will customers use to pay online? | Northwind_BRD_v1.2.pdf p.5 | 0.615 | yes |
-| N04 | Will the driver app be available in Hindi? | Northwind_BRD_v1.2.pdf p.6 | 0.635 | yes |
-| N05 | What is the salary of the Brightline project manager? | Northwind_SOW_Brightline.pdf p.2 | 0.655 | yes |
-| N06 | What is the capital of France? | Northwind_BRD_v1.2.pdf p.1 | 0.526 | yes |
-| N07 | How many defects were found during UAT? | Northwind_UAT_Test_Plan.pdf p.1 | 0.726 | yes |
+Refusal layers: `NO_RELEVANT_SOURCES` = similarity threshold, no model call; `NOT_IN_SOURCES` = the model found no answer in the sources; `UNGROUNDED_ANSWER` = answer withheld because it cited no real source.
+
+| ID | Question | Best source | Best sim. | Refused | Refused by |
+|---|---|---|---|---|---|
+| N01 | What is the penalty for late delivery of a shipment? | Northwind_BRD_v1.2.pdf p.1 | 0.652 | yes | `NOT_IN_SOURCES` |
+| N02 | Which cloud region hosts the disaster recovery site? | Northwind_BRD_v1.2.pdf p.6 | 0.634 | yes | `NOT_IN_SOURCES` |
+| N03 | Which payment gateway will customers use to pay online? | Northwind_BRD_v1.2.pdf p.5 | 0.615 | yes | `NOT_IN_SOURCES` |
+| N04 | Will the driver app be available in Hindi? | Northwind_BRD_v1.2.pdf p.6 | 0.635 | yes | `NOT_IN_SOURCES` |
+| N05 | What is the salary of the Brightline project manager? | Northwind_SOW_Brightline.pdf p.2 | 0.655 | yes | `NOT_IN_SOURCES` |
+| N06 | What is the capital of France? | Northwind_BRD_v1.2.pdf p.1 | 0.526 | yes | `NO_RELEVANT_SOURCES` |
+| N07 | How many defects were found during UAT? | Northwind_UAT_Test_Plan.pdf p.1 | 0.726 | yes | `NOT_IN_SOURCES` |
 
 ## Answers given
 
 - **Q01** How big is Northwind's truck fleet?<br>Northwind's truck fleet consists of 140 trucks [S1]. _(cites: Northwind_BRD_v1.2.pdf p.1)_
-- **Q02** How long does it take today, on average, to raise an invoice after a delivery?<br>On average, an invoice is raised 6 days after delivery today [S1]. _(cites: Northwind_BRD_v1.2.pdf p.1)_
+- **Q02** How long does it take today, on average, to raise an invoice after a delivery?<br>Today, on average, an invoice is raised 6 days after delivery [S1]. _(cites: Northwind_BRD_v1.2.pdf p.1)_
 - **Q03** Which user roles will the system have?<br>The system shall support five roles: Admin, Dispatcher, Driver, Customer, and Finance [S1]. _(cites: Northwind_BRD_v1.2.pdf p.2)_
 - **Q04** Which routes are covered in the first phase?<br>* The BRD states that Phase 1 covers the Pune-Mumbai and Pune-Ahmedabad corridors [S1]. * However, the later kickoff meeting notes state that the first live trips will run on the Pune-Mumbai corridor only, with Pune-Ahmedabad following two weeks after go-live [S2]. _(cites: Northwind_BRD_v1.2.pdf p.2, Northwind_Kickoff_Meeting_Notes.docx p.1)_
-- **Q05** If a customer cancels two hours before pickup, do they pay anything?<br>Yes, customers may cancel a booking free of charge up to 6 hours before the scheduled pickup time, but cancellations made later than that attract a cancellation fee of 15 percent of the quoted freight charge [S1]. Cancelling 2 hours before pickup falls into this later window, so a cancellation fee applies [S1][S2]. _(cites: Northwind_BRD_v1.2.pdf p.3, Northwind_UAT_Test_Plan.pdf p.2)_
-- **Q06** How frequently does the driver app report the truck's position?<br>The driver mobile app shall send the truck's GPS location every 5 minutes while a trip is in progress [S1]. _(cites: Northwind_BRD_v1.2.pdf p.4)_
-- **Q07** What does BR-7.4 require?<br>BR-7.4 requires that when there is no mobile network, the driver mobile app shall store up to 50 e-PODs offline and automatically upload them when the network returns [S2]. _(cites: Northwind_BRD_v1.2.pdf p.4)_
+- **Q05** If a customer cancels two hours before pickup, do they pay anything?<br>Yes, cancellations made later than 6 hours before the scheduled pickup time attract a cancellation fee of 15 percent of the quoted freight charge [S1]. _(cites: Northwind_BRD_v1.2.pdf p.3)_
+- **Q06** How frequently does the driver app report the truck's position?<br>The driver mobile app reports the truck's GPS location every 5 minutes while a trip is in progress [S1]. _(cites: Northwind_BRD_v1.2.pdf p.4)_
+- **Q07** What does BR-7.4 require?<br>BR-7.4 requires that when there is no mobile network, the driver mobile app must store up to 50 e-PODs offline and automatically upload them when the network returns [S2]. _(cites: Northwind_BRD_v1.2.pdf p.4)_
 - **Q08** Within how many hours of the e-POD must the customer invoice be produced?<br>The customer invoice must be generated within 48 hours of the e-POD being uploaded [S2][S3][S4]. This overrides the original BRD requirement of 24 hours [S1][S3]. _(cites: Northwind_CR-003_Invoice_Timing.pdf p.1, Northwind_Kickoff_Meeting_Notes.docx p.1, Northwind_UAT_Test_Plan.pdf p.3, Northwind_BRD_v1.2.pdf p.5)_
 - **Q09** At what time are invoices sent to the accounting system each night?<br>Invoices and credit notes are exported to Tally ERP every night at 23:00 IST [S1]. _(cites: Northwind_BRD_v1.2.pdf p.5)_
-- **Q10** In which country or cloud region must customer data be kept?<br>All customer and shipment data shall be stored in India (AWS Mumbai region) [S1]. _(cites: Northwind_BRD_v1.2.pdf p.6)_
+- **Q10** In which country or cloud region must customer data be kept?<br>All customer and shipment data shall be stored in India, specifically in the AWS Mumbai region [S1]. _(cites: Northwind_BRD_v1.2.pdf p.6)_
 - **Q11** When is the system planned to go live?<br>The system is planned to go live on 2 February 2027 [S1]. _(cites: Northwind_SOW_Brightline.pdf p.2)_
 - **Q12** What is the total fixed price of the implementation?<br>The fixed fee for the deliverables in the SOW is INR 4,800,000 (forty-eight lakh rupees), excluding GST [S1]. _(cites: Northwind_SOW_Brightline.pdf p.3)_
-- **Q13** What is the daily rate charged for extra work from change requests?<br>Additional work from change requests is charged at INR 6,500 per person-day [S1]. _(cites: Northwind_SOW_Brightline.pdf p.3)_
-- **Q14** How many business days does Northwind have to accept or reject a deliverable?<br>Northwind has 10 business days to accept or reject each deliverable after it is presented [S1]. If Northwind does not respond within that time, the deliverable is deemed accepted [S1]. _(cites: Northwind_SOW_Brightline.pdf p.4)_
-- **Q15** Which company will send the SMS messages?<br>Northwind will use TextFlow as their SMS provider for booking confirmations and tracking links [S1]. _(cites: Northwind_Kickoff_Meeting_Notes.docx p.1)_
+- **Q13** What is the daily rate charged for extra work from change requests?<br>Additional work resulting from change requests is charged at INR 6,500 per person-day [S1]. _(cites: Northwind_SOW_Brightline.pdf p.3)_
+- **Q14** How many business days does Northwind have to accept or reject a deliverable?<br>Northwind has 10 business days to accept or reject each deliverable after it is presented [S1]. If Northwind does not respond within that timeframe, the deliverable is deemed accepted [S1]. _(cites: Northwind_SOW_Brightline.pdf p.4)_
+- **Q15** Which company will send the SMS messages?<br>Based on the meeting notes, Northwind will use TextFlow to send booking confirmations and tracking links [S1]. _(cites: Northwind_Kickoff_Meeting_Notes.docx p.1)_
 - **Q16** What risk was raised about drivers' phones, and what is the mitigation?<br>* Risk: About 30 percent of drivers use feature phones and cannot run the application [S1]. * Mitigation: Northwind will purchase 15 Android devices for shared use at the Pune depot [S1]. _(cites: Northwind_Kickoff_Meeting_Notes.docx p.2)_
-- **Q17** How much did the invoice timing change cost?<br>The invoice timing change cost INR 19,500, which was charged as additional work under the SOW change request process for 3 person-days of effort [S1]. _(cites: Northwind_CR-003_Invoice_Timing.pdf p.2)_
+- **Q17** How much did the invoice timing change cost?<br>The invoice timing change cost INR 19,500 [S1]. This effort was charged as additional work under the SOW change request process [S1]. _(cites: Northwind_CR-003_Invoice_Timing.pdf p.2)_
 - **Q18** What pass rate is needed to exit UAT?<br>To exit UAT, at least 95 percent of test cases must pass [S1]. _(cites: Northwind_UAT_Test_Plan.pdf p.4)_
-- **Q19** Which test case covers BR-6.3?<br>TC-B-02 covers BR-6.3 [S1]. _(cites: Northwind_UAT_Test_Plan.pdf p.2)_
-- **Q20** Will the driver app support Marathi in Phase 1?<br>* Kickoff meeting notes listed Marathi language support for the driver app as an open question [S2]. * However, a later decision in the status report deferred Marathi language support to Phase 2, stating that Phase 1 will ship in English only [S1]. _(cites: Northwind_Kickoff_Meeting_Notes.docx p.2, Northwind_Status_Report_Week6.pdf p.2)_
+- **Q19** Which test case covers BR-6.3?<br>Test case TC-B-02 covers BR-6.3 [S1]. _(cites: Northwind_UAT_Test_Plan.pdf p.2)_
+- **Q20** Will the driver app support Marathi in Phase 1?<br>No, Marathi language support for the driver app is deferred to Phase 2, and Phase 1 will ship in English only [S1]. Note that earlier kickoff meeting notes listed this as an open question [S2], but the later status report definitively decided to defer it to Phase 2 [S1]. _(cites: Northwind_Status_Report_Week6.pdf p.2, Northwind_Kickoff_Meeting_Notes.docx p.2)_
 - **N01** What is the penalty for late delivery of a shipment?<br>Not found in the uploaded documents.
 - **N02** Which cloud region hosts the disaster recovery site?<br>Not found in the uploaded documents.
 - **N03** Which payment gateway will customers use to pay online?<br>Not found in the uploaded documents.
@@ -133,7 +135,7 @@ speclens.chunking.overlap = 150
 speclens.retrieval.candidates = 20
 speclens.retrieval.top-k = 5
 speclens.retrieval.rrf-k = 60
-speclens.retrieval.min-similarity = (not set)
+speclens.retrieval.min-similarity = 0.58
 ```
 
 ## Method

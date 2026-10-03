@@ -34,6 +34,11 @@ public @interface IntegrationTest {
 			return new FakeEmbeddingModel();
 		}
 
+		@Bean
+		FakeChatModel chatModel() {
+			return new FakeChatModel();
+		}
+
 	}
 
 }

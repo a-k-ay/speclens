@@ -1,0 +1,144 @@
+{
+  "description": "Golden set for the fictional Northwind Freight sample documents. Answerable questions list every (document, page) that contains the answer; a retrieval hit means at least one of them is in the top results. answerMustContain are facts the generated answer has to mention (case-insensitive). Unanswerable questions must be refused.",
+  "documents": [
+    "samples/Northwind_BRD_v1.2.pdf",
+    "samples/Northwind_SOW_Brightline.pdf",
+    "samples/Northwind_Kickoff_Meeting_Notes.docx"
+  ],
+  "answerable": [
+    {
+      "id": "Q01",
+      "question": "How big is Northwind's truck fleet?",
+      "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 1 }],
+      "answerMustContain": ["140"]
+    },
+    {
+      "id": "Q02",
+      "question": "How long does it take today, on average, to raise an invoice after a delivery?",
+      "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 1 }],
+      "answerMustContain": ["6 days"]
+    },
+    {
+      "id": "Q03",
+      "question": "Which user roles will the system have?",
+      "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 2 }],
+      "answerMustContain": ["Dispatcher", "Finance"]
+    },
+    {
+      "id": "Q04",
+      "question": "Which routes are covered in the first phase?",
+      "expected": [
+        { "document": "Northwind_BRD_v1.2.pdf", "page": 2 },
+        { "document": "Northwind_Kickoff_Meeting_Notes.docx", "page": 1 }
+      ],
+      "answerMustContain": ["Pune-Mumbai"]
+    },
+    {
+      "id": "Q05",
+      "question": "What is the maximum number of consignments allowed in one booking?",
+      "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 3 }],
+      "answerMustContain": ["20"]
+    },
+    {
+      "id": "Q06",
+      "question": "If a customer cancels two hours before pickup, do they pay anything?",
+      "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 3 }],
+      "answerMustContain": ["15"]
+    },
+    {
+      "id": "Q07",
+      "question": "How frequently does the driver app report the truck's position?",
+      "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 4 }],
+      "answerMustContain": ["5 minutes"]
+    },
+    {
+      "id": "Q08",
+      "question": "What does BR-7.4 require?",
+      "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 4 }],
+      "answerMustContain": ["50"]
+    },
+    {
+      "id": "Q09",
+      "question": "Within how many hours of the e-POD must the customer invoice be produced?",
+      "expected": [
+        { "document": "Northwind_BRD_v1.2.pdf", "page": 5 },
+        { "document": "Northwind_Kickoff_Meeting_Notes.docx", "page": 1 }
+      ],
+      "answerMustContain": ["48"]
+    },
+    {
+      "id": "Q10",
+      "question": "What tax rate is added to customer invoices?",
+      "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 5 }],
+      "answerMustContain": ["18"]
+    },
+    {
+      "id": "Q11",
+      "question": "At what time are invoices sent to the accounting system each night?",
+      "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 5 }],
+      "answerMustContain": ["23:00"]
+    },
+    {
+      "id": "Q12",
+      "question": "What availability percentage must the platform achieve?",
+      "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 6 }],
+      "answerMustContain": ["99.5"]
+    },
+    {
+      "id": "Q13",
+      "question": "In which country or cloud region must customer data be kept?",
+      "expected": [{ "document": "Northwind_BRD_v1.2.pdf", "page": 6 }],
+      "answerMustContain": ["Mumbai"]
+    },
+    {
+      "id": "Q14",
+      "question": "When is the system planned to go live?",
+      "expected": [{ "document": "Northwind_SOW_Brightline.pdf", "page": 2 }],
+      "answerMustContain": ["2 February 2027"]
+    },
+    {
+      "id": "Q15",
+      "question": "How many days of hypercare support follow the launch?",
+      "expected": [{ "document": "Northwind_SOW_Brightline.pdf", "page": 2 }],
+      "answerMustContain": ["30"]
+    },
+    {
+      "id": "Q16",
+      "question": "What is the total fixed price of the implementation?",
+      "expected": [{ "document": "Northwind_SOW_Brightline.pdf", "page": 3 }],
+      "answerMustContain": ["4,800,000"]
+    },
+    {
+      "id": "Q17",
+      "question": "What is the daily rate charged for extra work from change requests?",
+      "expected": [{ "document": "Northwind_SOW_Brightline.pdf", "page": 3 }],
+      "answerMustContain": ["6,500"]
+    },
+    {
+      "id": "Q18",
+      "question": "How many business days does Northwind have to accept or reject a deliverable?",
+      "expected": [{ "document": "Northwind_SOW_Brightline.pdf", "page": 4 }],
+      "answerMustContain": ["10"]
+    },
+    {
+      "id": "Q19",
+      "question": "Which company will send the SMS messages?",
+      "expected": [{ "document": "Northwind_Kickoff_Meeting_Notes.docx", "page": 1 }],
+      "answerMustContain": ["TextFlow"]
+    },
+    {
+      "id": "Q20",
+      "question": "What risk was raised about drivers' phones, and what is the mitigation?",
+      "expected": [{ "document": "Northwind_Kickoff_Meeting_Notes.docx", "page": 2 }],
+      "answerMustContain": ["15"]
+    }
+  ],
+  "unanswerable": [
+    { "id": "N01", "question": "What is the penalty for late delivery of a shipment?" },
+    { "id": "N02", "question": "Which cloud region hosts the disaster recovery site?" },
+    { "id": "N03", "question": "Which payment gateway will customers use to pay online?" },
+    { "id": "N04", "question": "Will the driver app be available in Hindi?" },
+    { "id": "N05", "question": "What is the salary of the Brightline project manager?" },
+    { "id": "N06", "question": "What is the capital of France?" }
+  ]
+}

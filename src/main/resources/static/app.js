@@ -25,7 +25,37 @@ const els = {
 };
 
 let messageCounter = 0;
-let config = { uploadsEnabled: false, demoProjectName: null };
+let config = { editingEnabled: false, demoProjectName: null };
+let projectList = [];
+let chatHistory = []; // [{ question, response, at }] for the selected project
+
+// ---------- chat history (this browser only) ----------
+// There are no user accounts, so history is never stored on the server: on the public demo
+// that would show one visitor's questions to everyone. localStorage keeps it private to this
+// browser; Export gives a file to keep elsewhere.
+
+const HISTORY_LIMIT = 50;
+const historyKey = (projectId) => `speclens.chat.${projectId}`;
+
+function loadHistory(projectId) {
+  try {
+    return JSON.parse(localStorage.getItem(historyKey(projectId)) || "[]");
+  } catch {
+    return []; // storage blocked (private window) or corrupted: start empty
+  }
+}
+
+function saveHistory(projectId, entries) {
+  try {
+    localStorage.setItem(historyKey(projectId), JSON.stringify(entries.slice(-HISTORY_LIMIT)));
+  } catch {
+    // Storage full or blocked: the chat still works, it just won't be remembered.
+  }
+}
+
+function clearHistory(projectId) {
+  try { localStorage.removeItem(historyKey(projectId)); } catch { /* ignore */ }
+}
 
 // ---------- helpers ----------
 
@@ -136,6 +166,11 @@ function renderAnswer(response) {
             <span class="source-meta"><strong>${escapeHtml(c.documentName)}</strong>, page ${c.page}</span>
             <span class="source-sim" title="Cosine similarity between your question and this passage">match ${c.similarity.toFixed(2)}</span>
           </summary>
+          ${/\.pdf$/i.test(c.documentName) ? `
+            <div class="page-view">
+              <button type="button" class="btn btn-secondary btn-small view-page"
+                data-src="/api/documents/${c.documentId}/pages/${c.page}/image">View page ${c.page} as in the PDF</button>
+            </div>` : ""}
           <p class="passage"><span class="passage-label">Passage given to the model:</span>${escapeHtml(c.passage)}</p>
         </details>`).join("")}
     </div>`;
@@ -148,6 +183,31 @@ function renderError(message) {
   div.textContent = message;
   return div;
 }
+
+// "View page" swaps the button for the rendered PDF page. The image is only requested on
+// click, and a click on the image opens it full size in a new tab.
+els.thread.addEventListener("click", (event) => {
+  const button = event.target.closest("button.view-page");
+  if (!button) return;
+  const src = button.dataset.src;
+  const link = document.createElement("a");
+  link.href = src;
+  link.target = "_blank";
+  link.rel = "noopener";
+  link.title = "Open full size in a new tab";
+  const img = document.createElement("img");
+  img.className = "page-image";
+  img.alt = button.textContent.replace("View ", "Rendered ");
+  img.src = src;
+  img.addEventListener("error", () => {
+    const note = document.createElement("p");
+    note.className = "muted small";
+    note.textContent = "The page image isn't available for this document (it may have been uploaded before page previews existed).";
+    link.replaceWith(note);
+  });
+  link.appendChild(img);
+  button.replaceWith(link);
+});
 
 // Clicking an inline [S1] marker opens and highlights that source below the answer.
 els.thread.addEventListener("click", (event) => {
@@ -181,6 +241,11 @@ async function ask(question) {
       body: JSON.stringify({ question }),
     });
     loading.replaceWith(renderAnswer(response));
+    const entries = loadHistory(projectId);
+    entries.push({ question, response, at: new Date().toISOString() });
+    saveHistory(projectId, entries);
+    if (els.project.value === projectId) chatHistory = entries;
+    updateChatButtons();
   } catch (error) {
     loading.replaceWith(renderError(error.message));
   } finally {
@@ -229,22 +294,103 @@ function renderSamples() {
 
 // ---------- projects and documents ----------
 
-async function loadProjects() {
+async function loadProjects(selectId) {
   config = await api("/api/config");
-  const projects = await api("/api/projects");
-  els.project.innerHTML = projects
+  projectList = await api("/api/projects");
+  els.project.innerHTML = projectList
     .map((p) => `<option value="${p.id}">${escapeHtml(p.name)}</option>`)
     .join("");
-  if (!projects.length) {
+  const hasProjects = projectList.length > 0;
+  els.askBtn.disabled = !hasProjects;
+  $("delete-project").disabled = !hasProjects;
+  if (!hasProjects) {
     els.project.innerHTML = '<option value="">No projects yet</option>';
-    els.askBtn.disabled = true;
+    els.documents.innerHTML = "";
+    els.docCount.textContent = "";
+    showProjectHistory();
     return;
   }
-  // Open the demo project by default when there is one.
-  const demo = projects.find((p) => p.name === config.demoProjectName);
-  els.project.value = String((demo ?? projects[0]).id);
+  // Open the requested project, else the one used last in this browser, else the demo, else the first.
+  const byId = (id) => projectList.find((p) => String(p.id) === String(id));
+  const demo = projectList.find((p) => p.name === config.demoProjectName);
+  const chosen = byId(selectId) ?? byId(rememberedProject()) ?? demo ?? projectList[0];
+  els.project.value = String(chosen.id);
+  rememberProject(chosen.id);
+  showProjectHistory();
   await loadDocuments();
 }
+
+// Re-draws the saved conversation of the selected project (or the intro if there is none).
+function showProjectHistory() {
+  els.thread.querySelectorAll(".msg").forEach((m) => m.remove());
+  chatHistory = els.project.value ? loadHistory(els.project.value) : [];
+  els.intro.hidden = chatHistory.length > 0;
+  for (const entry of chatHistory) {
+    addQuestion(entry.question);
+    els.thread.appendChild(renderAnswer(entry.response));
+  }
+  updateChatButtons();
+  scrollToBottom();
+}
+
+function rememberedProject() {
+  try { return localStorage.getItem("speclens.project"); } catch { return null; }
+}
+
+function rememberProject(id) {
+  try { localStorage.setItem("speclens.project", String(id)); } catch { /* ignore */ }
+}
+
+function updateChatButtons() {
+  $("export-chat").disabled = chatHistory.length === 0;
+}
+
+$("new-project-btn").addEventListener("click", () => {
+  $("new-project-form").hidden = false;
+  $("new-project-btn").hidden = true;
+  $("new-project-error").textContent = "";
+  $("new-project-name").focus();
+});
+
+$("new-project-cancel").addEventListener("click", () => {
+  $("new-project-form").hidden = true;
+  $("new-project-btn").hidden = false;
+});
+
+$("new-project-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const name = $("new-project-name").value.trim();
+  if (!name) return;
+  try {
+    const project = await api("/api/projects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+    $("new-project-name").value = "";
+    $("new-project-form").hidden = true;
+    $("new-project-btn").hidden = false;
+    await loadProjects(project.id);
+  } catch (error) {
+    $("new-project-error").textContent = error.message;
+  }
+});
+
+$("delete-project").addEventListener("click", async () => {
+  const project = projectList.find((p) => String(p.id) === els.project.value);
+  if (!project) return;
+  const docCount = els.documents.querySelectorAll("li[data-id]").length;
+  const ok = window.confirm(`Delete the project "${project.name}" and its ${docCount} document(s)?\n\n`
+    + "This removes the documents and their search index for good. It can't be undone.");
+  if (!ok) return;
+  try {
+    await api(`/api/projects/${project.id}`, { method: "DELETE" });
+    clearHistory(project.id);
+    await loadProjects();
+  } catch (error) {
+    window.alert(error.message);
+  }
+});
 
 async function loadDocuments() {
   const projectId = els.project.value;
@@ -253,21 +399,88 @@ async function loadDocuments() {
   els.docCount.textContent = docs.length ? `${docs.length}` : "";
   els.documents.innerHTML = docs.length
     ? docs.map((d) => `
-        <li><span class="doc-name">${escapeHtml(d.filename)}</span>
-            <span class="doc-pages">${d.pageCount} ${d.pageCount === 1 ? "page" : "pages"}</span></li>`).join("")
+        <li data-id="${d.id}" data-name="${escapeHtml(d.filename)}">
+          <span class="doc-name">${escapeHtml(d.filename)}</span>
+          <span class="doc-pages">${d.pageCount} ${d.pageCount === 1 ? "page" : "pages"}</span>
+          ${config.editingEnabled ? `<button type="button" class="icon-btn small danger delete-doc"
+              title="Delete this document" aria-label="Delete ${escapeHtml(d.filename)}">&times;</button>` : ""}
+        </li>`).join("")
     : '<li class="muted">No documents in this project yet.</li>';
 }
 
+els.documents.addEventListener("click", async (event) => {
+  const button = event.target.closest("button.delete-doc");
+  if (!button) return;
+  const item = button.closest("li");
+  const ok = window.confirm(`Delete "${item.dataset.name}" from this project?\n\n`
+    + "Its passages will no longer be searched. Earlier answers in this chat keep their quoted passages.");
+  if (!ok) return;
+  try {
+    await api(`/api/projects/${els.project.value}/documents/${item.dataset.id}`, { method: "DELETE" });
+    await loadDocuments();
+  } catch (error) {
+    window.alert(error.message);
+  }
+});
+
+$("refresh-docs").addEventListener("click", () => {
+  loadDocuments().catch((error) => window.alert(error.message));
+});
+
 els.project.addEventListener("change", () => {
-  els.thread.querySelectorAll(".msg").forEach((m) => m.remove());
-  els.intro.hidden = false;
+  rememberProject(els.project.value);
+  showProjectHistory();
   loadDocuments().catch((e) => console.error(e));
 });
+
+// ---------- new chat and export ----------
+
+$("new-chat").addEventListener("click", () => {
+  if (chatHistory.length && !window.confirm("Start a new chat? This conversation will be removed from this browser.\n\n"
+      + "Use Export first if you want to keep it.")) {
+    return;
+  }
+  clearHistory(els.project.value);
+  showProjectHistory();
+  els.question.focus();
+});
+
+$("export-chat").addEventListener("click", () => {
+  if (!chatHistory.length) return;
+  const project = projectList.find((p) => String(p.id) === els.project.value);
+  const blob = new Blob([toMarkdown(project?.name ?? "Project", chatHistory)], { type: "text/markdown" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  const slug = (project?.name ?? "project").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  link.download = `speclens-${slug}-${new Date().toISOString().slice(0, 10)}.md`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+});
+
+// The conversation as a Markdown file: each question, the answer, and its cited passages.
+function toMarkdown(projectName, entries) {
+  const quote = (text) => String(text).split("\n").map((line) => `> ${line}`).join("\n");
+  const parts = [`# SpecLens conversation: ${projectName}`, `Exported ${new Date().toLocaleString()}`, ""];
+  for (const { question, response, at } of entries) {
+    parts.push("---", "", `## ${question}`, `_Asked ${new Date(at).toLocaleString()}_`, "");
+    if (!response.answered) {
+      parts.push(`**${response.answer}** ${REFUSAL_EXPLANATIONS[response.refusalReason] || ""}`, "");
+      continue;
+    }
+    parts.push(response.answer, "", "**Sources**", "");
+    for (const c of response.citations) {
+      parts.push(`- **[${c.sourceId}] ${c.documentName}, page ${c.page}**`, "", quote(c.passage), "");
+    }
+  }
+  return parts.join("\n");
+}
 
 // ---------- upload (only when the server allows it) ----------
 
 function setUpUpload() {
-  els.uploadBox.hidden = !config.uploadsEnabled;
+  // Uploads, new projects and deletions are all off on the read-only public demo.
+  document.querySelectorAll(".editing-only").forEach((el) => { el.hidden = !config.editingEnabled; });
+  els.uploadBox.hidden = !config.editingEnabled;
   els.uploadHint.textContent = `PDF or DOCX, up to ${config.maxFileMb} MB and ${config.maxPages} pages.`;
 }
 

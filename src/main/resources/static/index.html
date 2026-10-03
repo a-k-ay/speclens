@@ -26,11 +26,26 @@
   <main class="layout">
     <aside class="sidebar" aria-label="Project and documents">
       <label class="field-label" for="project">Project</label>
-      <select id="project" class="select"></select>
+      <div class="row">
+        <select id="project" class="select"></select>
+        <button id="delete-project" type="button" class="icon-btn danger editing-only" hidden
+          title="Delete this project" aria-label="Delete this project">&#128465;</button>
+      </div>
+      <button id="new-project-btn" type="button" class="link-btn editing-only" hidden>+ New project</button>
+      <form id="new-project-form" class="new-project" hidden>
+        <label for="new-project-name" class="visually-hidden">New project name</label>
+        <input id="new-project-name" class="select" maxlength="120" placeholder="Project name" required>
+        <div class="row">
+          <button type="submit" class="btn btn-primary btn-small">Create</button>
+          <button type="button" id="new-project-cancel" class="btn btn-secondary btn-small">Cancel</button>
+        </div>
+        <p id="new-project-error" class="small error-text" role="alert"></p>
+      </form>
 
       <div class="docs-head">
-        <h2>Documents</h2>
-        <span id="doc-count" class="muted"></span>
+        <h2>Documents <span id="doc-count" class="muted"></span></h2>
+        <button id="refresh-docs" type="button" class="icon-btn" title="Refresh the document list"
+          aria-label="Refresh the document list">&#8635;</button>
       </div>
       <ul id="documents" class="doc-list"></ul>
 
@@ -49,6 +64,15 @@
     </aside>
 
     <section class="chat" aria-label="Questions and answers">
+      <div class="chat-bar">
+        <span class="chat-title" title="Your questions and answers are saved in this browser only, per project">
+          Conversation <span class="muted small">· saved in this browser</span></span>
+        <div class="row">
+          <button id="export-chat" type="button" class="btn btn-secondary btn-small" disabled
+            title="Download this conversation as a Markdown file">Export</button>
+          <button id="new-chat" type="button" class="btn btn-secondary btn-small">New chat</button>
+        </div>
+      </div>
       <div id="thread" class="thread" aria-live="polite">
         <div id="intro" class="intro">
           <h2>Ask about the client's BRD, SOW, meeting notes and more</h2>

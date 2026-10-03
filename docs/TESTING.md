@@ -35,7 +35,7 @@ Expect `speclens-db` with status `healthy`. This is Postgres 17 with pgvector, o
 ./mvnw verify
 ```
 
-Expect `Tests run: 58, Failures: 0` and `BUILD SUCCESS`. The tests start their **own** throwaway
+Expect `Tests run: 63, Failures: 0` and `BUILD SUCCESS`. The tests start their **own** throwaway
 pgvector container (Testcontainers) and use **fake** AI models, so they never touch your data
 or your Gemini key. This is exactly what CI will run.
 
@@ -238,10 +238,18 @@ later starts skip files that are already loaded). Then open **http://localhost:8
 | Click an S1 marker | The source opens below: document, page and the exact passage the model was given |
 | "Documents disagree" sample | 24 h (BRD) vs 48 h (kickoff notes, CR-003), both cited |
 | "Not in the documents" sample | A yellow card: not found, plus which safeguard refused |
+| "View page N as in the PDF" (inside a PDF source) | The real page as an image: tables and layout as in the file. Click it to open full size |
 | Upload PDF or DOCX | Works locally; hidden on the public demo |
+| + New project / trash icon next to the project | Create a project, or delete it with all its documents (asks first) |
+| x next to a document | Delete that document (asks first) |
+| Refresh icon next to Documents | Reloads the document list |
+| Reload the browser tab | Your conversation for that project comes back (saved in this browser) |
+| Export | Downloads the conversation, with quoted sources, as a Markdown file |
+| New chat | Clears the conversation for this project (asks first) |
 
-**Demo mode** (what the live site runs): add `UPLOAD_ENABLED=false` and the upload button
-disappears; the upload API returns `403`.
+**Read-only demo mode** (what the live site runs): add `UPLOAD_ENABLED=false`. Upload, new
+project and all delete buttons disappear, and the server itself refuses those requests with
+`403`. New chat and Export still work because they only touch your browser.
 
 **Rate limits:** asking, uploading and generating are limited to 10 requests per minute and
 100 per day per IP, and 500 per day in total. To see it, send 11 questions within a minute;

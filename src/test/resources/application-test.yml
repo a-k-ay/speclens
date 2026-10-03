@@ -19,3 +19,8 @@ speclens:
     # Fake bag-of-words embeddings give much lower similarities than Gemini, so the
     # threshold is off in tests; AskThresholdIntegrationTest checks it explicitly.
     min-similarity: 0.0
+  rate-limit:
+    # Integration tests send many requests from 127.0.0.1; RateLimiterTest covers the limits.
+    per-ip-per-minute: 100000
+    per-ip-per-day: 100000
+    global-per-day: 100000

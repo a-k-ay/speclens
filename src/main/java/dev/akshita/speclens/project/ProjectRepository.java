@@ -38,6 +38,13 @@ public class ProjectRepository {
 				.list();
 	}
 
+	public Optional<Project> findByName(String name) {
+		return jdbc.sql("SELECT id, name, description, created_at FROM project WHERE name = :name")
+				.param("name", name)
+				.query(Project.class)
+				.optional();
+	}
+
 	public Optional<Project> findById(long id) {
 		return jdbc.sql("SELECT id, name, description, created_at FROM project WHERE id = :id")
 				.param("id", id)

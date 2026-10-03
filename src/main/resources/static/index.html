@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpecLens</title>
+  <meta name="description" content="Ask questions about requirements documents. Every answer cites the document and page, and SpecLens says so when the answer isn't there.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='13' cy='13' r='8' fill='none' stroke='%232f6fed' stroke-width='3.5'/%3E%3Cpath d='M19 19l8 8' stroke='%232f6fed' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="13" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="3.5"/>
+        <path d="M19 19l8 8" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h1>SpecLens</h1>
+        <p class="tagline">Ask your requirements documents. Every answer cites its page.</p>
+      </div>
+    </div>
+    <a class="gh-link" href="https://github.com/a-k-ay/speclens" target="_blank" rel="noopener">Source on GitHub</a>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar" aria-label="Project and documents">
+      <label class="field-label" for="project">Project</label>
+      <select id="project" class="select"></select>
+
+      <div class="docs-head">
+        <h2>Documents</h2>
+        <span id="doc-count" class="muted"></span>
+      </div>
+      <ul id="documents" class="doc-list"></ul>
+
+      <div id="upload-box" class="upload" hidden>
+        <button id="upload-btn" type="button" class="btn btn-secondary">Upload PDF or DOCX</button>
+        <input id="file" type="file" accept=".pdf,.docx" hidden>
+        <p id="upload-hint" class="muted small"></p>
+        <p id="upload-status" class="small" role="status"></p>
+      </div>
+
+      <div class="note">
+        <strong>Demo data is fictional.</strong>
+        Northwind Freight and Brightline Digital are made-up companies. The documents include a
+        deliberate contradiction (24 h vs 48 h invoicing) and questions they can't answer.
+      </div>
+    </aside>
+
+    <section class="chat" aria-label="Questions and answers">
+      <div id="thread" class="thread" aria-live="polite">
+        <div id="intro" class="intro">
+          <h2>Ask about the client's BRD, SOW, meeting notes and more</h2>
+          <p class="muted">SpecLens searches the documents (by meaning and by keyword), answers only from
+            what it finds, and cites the document and page. If the answer isn't there, it says so.</p>
+          <div class="samples" id="samples"></div>
+        </div>
+      </div>
+
+      <form id="ask-form" class="composer">
+        <label for="question" class="visually-hidden">Your question</label>
+        <textarea id="question" rows="1" maxlength="500" placeholder="Ask a question about the documents..." required></textarea>
+        <button id="ask-btn" class="btn btn-primary" type="submit">Ask</button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span id="eval-summary" class="muted"></span>
+  </footer>
+
+  <template id="tpl-question">
+    <div class="msg msg-question"><p></p></div>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>

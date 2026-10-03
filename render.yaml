@@ -1,0 +1,25 @@
+# Render Blueprint: the SpecLens web service as code.
+# Secrets use "sync: false", so Render asks for their values in the dashboard; they are
+# never stored in this file. See docs/DEPLOY.md.
+services:
+  - type: web
+    name: speclens
+    runtime: docker
+    plan: free
+    region: singapore
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: DB_URL
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      # Public demo: no uploads, preloaded fictional documents.
+      - key: UPLOAD_ENABLED
+        value: "false"
+      - key: DEMO_SEED
+        value: "true"

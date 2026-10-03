@@ -35,7 +35,7 @@ Expect `speclens-db` with status `healthy`. This is Postgres 17 with pgvector, o
 ./mvnw verify
 ```
 
-Expect `Tests run: 46, Failures: 0` and `BUILD SUCCESS`. The tests start their **own** throwaway
+Expect `Tests run: 58, Failures: 0` and `BUILD SUCCESS`. The tests start their **own** throwaway
 pgvector container (Testcontainers) and use **fake** AI models, so they never touch your data
 or your Gemini key. This is exactly what CI will run.
 
@@ -219,6 +219,33 @@ Read `docs/EVAL.md` afterwards: hybrid vs vector-only vs keyword-only retrieval,
 similarity numbers behind the threshold, and every answer the model gave. Try adding a
 question to the golden set, or changing `speclens.chunking.size` in `application.yml`, and
 re-run to see how the numbers move.
+
+## Feature 8: The chat UI in your browser
+
+Start the app with the fictional samples preloaded (stop any running instance first):
+
+```bash
+DEMO_SEED=true ./mvnw spring-boot:run
+```
+
+Wait for `Started SpeclensApplication` (the first start also logs six `Ingested '...'` lines;
+later starts skip files that are already loaded). Then open **http://localhost:8080**.
+
+| Try this | What you should see |
+|---|---|
+| Project dropdown | "Northwind Freight (sample client)" selected, 6 documents on the left |
+| A sample question | An answer with blue S1 / S2 markers |
+| Click an S1 marker | The source opens below: document, page and the exact passage the model was given |
+| "Documents disagree" sample | 24 h (BRD) vs 48 h (kickoff notes, CR-003), both cited |
+| "Not in the documents" sample | A yellow card: not found, plus which safeguard refused |
+| Upload PDF or DOCX | Works locally; hidden on the public demo |
+
+**Demo mode** (what the live site runs): add `UPLOAD_ENABLED=false` and the upload button
+disappears; the upload API returns `403`.
+
+**Rate limits:** asking, uploading and generating are limited to 10 requests per minute and
+100 per day per IP, and 500 per day in total. To see it, send 11 questions within a minute;
+the 11th returns `429 Too Many Requests` with a `Retry-After` header.
 
 ## Start over
 

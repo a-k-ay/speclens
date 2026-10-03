@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
@@ -52,14 +53,19 @@ class DemoModeIntegrationTest {
 	}
 
 	@Test
-	void publicUploadIsRefusedWith403() {
-		long projectId = projects.create("Demo upload test", null).id();
+	void everyChangeIsRefusedWith403InReadOnlyMode() {
+		long projectId = projects.create("Demo read-only test", null).id();
 
 		assertThat(mvc.post().uri("/api/projects/{id}/documents", projectId).multipart()
 				.file(new MockMultipartFile("file", "a.pdf", "application/pdf", TestDocuments.pdf("x"))))
 				.hasStatus(HttpStatus.FORBIDDEN);
+		assertThat(mvc.post().uri("/api/projects").contentType(MediaType.APPLICATION_JSON)
+				.content("{\"name\": \"Spam\"}")).hasStatus(HttpStatus.FORBIDDEN);
+		assertThat(mvc.delete().uri("/api/projects/{id}", projectId)).hasStatus(HttpStatus.FORBIDDEN);
+		assertThat(mvc.delete().uri("/api/projects/{id}/documents/1", projectId)).hasStatus(HttpStatus.FORBIDDEN);
+		assertThat(projects.findById(projectId)).isPresent();
 		assertThat(mvc.get().uri("/api/config"))
-				.bodyJson().hasPathSatisfying("$.uploadsEnabled", v -> v.assertThat().isEqualTo(false));
+				.bodyJson().hasPathSatisfying("$.editingEnabled", v -> v.assertThat().isEqualTo(false));
 	}
 
 }

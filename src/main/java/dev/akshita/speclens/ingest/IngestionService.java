@@ -76,6 +76,7 @@ public class IngestionService {
 			long id = documents.insertDocument(projectId, filename, format.contentType, pages.size());
 			documents.insertChunks(id, projectId, chunks, vectors);
 			documents.insertGlossary(id, glossary);
+			documents.insertFile(id, bytes);
 			return id;
 		});
 		log.info("Ingested '{}' into project {}: {} pages, {} chunks, {} glossary terms", filename, projectId,

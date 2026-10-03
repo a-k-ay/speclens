@@ -2,6 +2,7 @@ package dev.akshita.speclens.document;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import dev.akshita.speclens.ai.Vectors;
 import dev.akshita.speclens.ingest.ChunkDraft;
@@ -19,6 +20,14 @@ public class DocumentRepository {
 	public DocumentRepository(JdbcClient jdbc, JdbcTemplate jdbcTemplate) {
 		this.jdbc = jdbc;
 		this.jdbcTemplate = jdbcTemplate;
+	}
+
+	/** Deletes one document of a project; its chunks, glossary terms and file cascade. */
+	public boolean delete(long projectId, long documentId) {
+		return jdbc.sql("DELETE FROM document WHERE id = :id AND project_id = :projectId")
+				.param("id", documentId)
+				.param("projectId", projectId)
+				.update() == 1;
 	}
 
 	public boolean exists(long projectId, String filename) {
@@ -41,6 +50,29 @@ public class DocumentRepository {
 				.param("pageCount", pageCount)
 				.query(Long.class)
 				.single();
+	}
+
+	public void insertFile(long documentId, byte[] bytes) {
+		jdbc.sql("INSERT INTO document_file (document_id, bytes) VALUES (:id, :bytes)")
+				.param("id", documentId)
+				.param("bytes", bytes)
+				.update();
+	}
+
+	/** The original upload plus its content type; empty for documents stored before V4. */
+	public Optional<StoredFile> findFile(long documentId) {
+		return jdbc.sql("""
+				SELECT d.content_type, f.bytes
+				FROM document d
+				JOIN document_file f ON f.document_id = d.id
+				WHERE d.id = :id
+				""")
+				.param("id", documentId)
+				.query((rs, row) -> new StoredFile(rs.getString("content_type"), rs.getBytes("bytes")))
+				.optional();
+	}
+
+	public record StoredFile(String contentType, byte[] bytes) {
 	}
 
 	/** One batched round trip for all chunks. content_tsv is filled in by Postgres. */

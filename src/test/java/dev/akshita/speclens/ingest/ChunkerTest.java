@@ -74,8 +74,36 @@ class ChunkerTest {
 	}
 
 	@Test
-	void whitespaceIsNormalised() {
-		assertThat(Chunker.normalize("Line one\r\n  wrapped\tline  ")).isEqualTo("Line one wrapped line");
+	void whitespaceIsNormalisedButLineBreaksAreKept() {
+		assertThat(Chunker.normalize("  Line one\r\n\r\n   wrapped\t\tline  \n")).isEqualTo("Line one\nwrapped line");
+	}
+
+	@Test
+	void tableRowsStayOnTheirOwnLines() {
+		String table = """
+				S.NO  DESCRIPTION   UNIT  QUANTITY  RATE
+				1     DB            Mtrs  12        300
+				2     APFC Panel    Pocket 5        450
+				""";
+
+		List<ChunkDraft> chunks = chunker.chunk(List.of(new PageText(1, table)));
+
+		assertThat(chunks.getFirst().content()).isEqualTo("""
+				S.NO DESCRIPTION UNIT QUANTITY RATE
+				1 DB Mtrs 12 300
+				2 APFC Panel Pocket 5 450""");
+	}
+
+	@Test
+	void longTextWithLineBreaksSplitsAtLineBreaksNotMidWord() {
+		String page = IntStream.range(0, 120).mapToObj(i -> "row " + i + " value " + (i * 7))
+				.collect(Collectors.joining("\n"));
+
+		List<ChunkDraft> chunks = chunker.chunk(List.of(new PageText(1, page)));
+
+		// Every chunk starts and ends with a whole token ("row", "value" or a number), never "ow" or "alu".
+		assertThat(chunks).hasSizeGreaterThan(1).allSatisfy(c ->
+				assertThat(c.content()).matches("(?s)^(row|value|\\d+)\\s.*\\s(row|value|\\d+)$"));
 	}
 
 	@Test

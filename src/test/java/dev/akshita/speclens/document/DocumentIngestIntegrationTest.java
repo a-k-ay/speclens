@@ -72,6 +72,47 @@ class DocumentIngestIntegrationTest {
 	}
 
 	@Test
+	void pdfPagesCanBeViewedAsImagesButDocxCannot() throws Exception {
+		long pdfId = documentId(upload("tender.pdf", TestDocuments.pdf("Page one table.", "Page two table.")));
+		long docxId = documentId(upload("notes.docx", TestDocuments.docx("Notes.")));
+
+		MvcTestResult page2 = mvc.get().uri("/api/documents/{id}/pages/2/image", pdfId).exchange();
+		assertThat(page2).hasStatusOk().hasContentType("image/png");
+		byte[] png = page2.getResponse().getContentAsByteArray();
+		assertThat(png).startsWith(0x89, 'P', 'N', 'G'); // PNG file signature
+
+		assertThat(mvc.get().uri("/api/documents/{id}/pages/3/image", pdfId)).hasStatus(HttpStatus.NOT_FOUND);
+		assertThat(mvc.get().uri("/api/documents/{id}/pages/1/image", docxId)).hasStatus(HttpStatus.NOT_FOUND)
+				.bodyJson().extractingPath("$.detail").asString().contains("PDF files only");
+	}
+
+	@Test
+	void deletingADocumentRemovesItsChunksAndFile() throws Exception {
+		long id = documentId(upload("old.pdf", TestDocuments.pdf("Obsolete requirement.")));
+
+		assertThat(mvc.delete().uri("/api/projects/{p}/documents/{d}", projectId, id)).hasStatus(HttpStatus.NO_CONTENT);
+
+		assertThat(jdbc.sql("SELECT count(*) FROM chunk WHERE document_id = :d").param("d", id)
+				.query(Integer.class).single()).isZero();
+		assertThat(mvc.get().uri("/api/documents/{id}/pages/1/image", id)).hasStatus(HttpStatus.NOT_FOUND);
+		// Deleting again, or from the wrong project, is a 404.
+		assertThat(mvc.delete().uri("/api/projects/{p}/documents/{d}", projectId, id)).hasStatus(HttpStatus.NOT_FOUND);
+	}
+
+	@Test
+	void deletingAProjectRemovesEverythingInIt() throws Exception {
+		long id = documentId(upload("brd.pdf", TestDocuments.pdf("Requirement text.")));
+
+		assertThat(mvc.delete().uri("/api/projects/{p}", projectId)).hasStatus(HttpStatus.NO_CONTENT);
+
+		assertThat(mvc.get().uri("/api/projects/{p}", projectId)).hasStatus(HttpStatus.NOT_FOUND);
+		assertThat(jdbc.sql("SELECT count(*) FROM document WHERE id = :d").param("d", id)
+				.query(Integer.class).single()).isZero();
+		assertThat(jdbc.sql("SELECT count(*) FROM chunk WHERE document_id = :d").param("d", id)
+				.query(Integer.class).single()).isZero();
+	}
+
+	@Test
 	void documentsAreListedPerProject() {
 		upload("sow.pdf", TestDocuments.pdf("Statement of work.")).exchange();
 
@@ -108,6 +149,11 @@ class DocumentIngestIntegrationTest {
 		assertThat(mvc.post().uri("/api/projects/999999/documents")
 				.multipart().file(new MockMultipartFile("file", "a.pdf", "application/pdf", TestDocuments.pdf("x"))))
 				.hasStatus(HttpStatus.NOT_FOUND);
+	}
+
+	private static long documentId(MockMvcTester.MockMultipartMvcRequestBuilder upload) throws Exception {
+		String body = upload.exchange().getResponse().getContentAsString(StandardCharsets.UTF_8);
+		return ((Number) JsonPath.read(body, "$.id")).longValue();
 	}
 
 	private MockMvcTester.MockMultipartMvcRequestBuilder upload(String filename, byte[] bytes) {

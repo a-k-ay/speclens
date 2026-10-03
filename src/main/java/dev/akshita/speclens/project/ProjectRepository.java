@@ -38,6 +38,11 @@ public class ProjectRepository {
 				.list();
 	}
 
+	/** Deletes the project; documents, chunks, glossary terms and files go with it (ON DELETE CASCADE). */
+	public boolean delete(long id) {
+		return jdbc.sql("DELETE FROM project WHERE id = :id").param("id", id).update() == 1;
+	}
+
 	public Optional<Project> findByName(String name) {
 		return jdbc.sql("SELECT id, name, description, created_at FROM project WHERE name = :name")
 				.param("name", name)

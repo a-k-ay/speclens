@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ConfigController {
 
-	public record UiConfig(boolean uploadsEnabled, int maxPages, int maxFileMb, String demoProjectName) {
+	/** editingEnabled covers uploads, new projects and deletions (false on the public demo). */
+	public record UiConfig(boolean editingEnabled, int maxPages, int maxFileMb, String demoProjectName) {
 	}
 
 	private final IngestProperties ingest;

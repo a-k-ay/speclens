@@ -53,7 +53,7 @@ public class GlossaryExtractor {
 	 */
 	static String findLongForm(String shortForm, String before) {
 		String letters = shortForm.replaceAll("[^A-Za-z0-9]", "").toLowerCase();
-		String[] words = before.split(" ");
+		String[] words = before.split("\\s+");
 		int maxWords = Math.min(letters.length() + 5, letters.length() * 2);
 		for (int n = 1; n <= Math.min(maxWords, words.length); n++) {
 			String candidate = String.join(" ",

@@ -64,32 +64,56 @@ public class Chunker {
 		return pieces;
 	}
 
-	/** Prefer ending after a sentence, then at a space; only hard-cut if neither is in the back half. */
+	/**
+	 * Prefer ending after a sentence, then at a line break or space; only hard-cut if none
+	 * is in the back half of the window.
+	 */
 	private int findBreak(String text, int start, int end) {
 		int earliest = start + size / 2;
-		String window = text.substring(earliest, end);
-		int sentenceEnd = Math.max(window.lastIndexOf(". "),
-				Math.max(window.lastIndexOf("? "), window.lastIndexOf("! ")));
-		if (sentenceEnd >= 0) {
-			return earliest + sentenceEnd + 1;
+		for (int i = end - 1; i > earliest; i--) {
+			char c = text.charAt(i - 1);
+			if ((c == '.' || c == '?' || c == '!') && isBreak(text.charAt(i))) {
+				return i;
+			}
 		}
-		int space = window.lastIndexOf(' ');
-		return space >= 0 ? earliest + space : end;
+		for (int i = end - 1; i >= earliest; i--) {
+			if (isBreak(text.charAt(i))) {
+				return i;
+			}
+		}
+		return end;
 	}
 
 	/** Step back by the overlap, then forward to the next word start so no chunk begins mid-word. */
 	private int nextStart(String text, int start, int end) {
 		int next = end - overlap;
-		int space = text.indexOf(' ', next);
-		if (space >= 0 && space < end) {
-			next = space + 1;
+		for (int i = next; i < end; i++) {
+			if (isBreak(text.charAt(i))) {
+				next = i + 1;
+				break;
+			}
 		}
 		return next > start ? next : end;
 	}
 
-	/** PDF text has hard line wraps and repeated spaces; one space keeps sizes predictable. */
+	private static boolean isBreak(char c) {
+		return c == ' ' || c == '\n';
+	}
+
+	/**
+	 * Collapses spaces and tabs inside each line and drops blank lines, but keeps line
+	 * breaks, so table rows and list items stay on their own lines when a citation shows
+	 * the passage. Sizes stay predictable: at most one whitespace character in a row.
+	 */
 	static String normalize(String text) {
-		return text == null ? "" : text.replaceAll("\\s+", " ").strip();
+		if (text == null) {
+			return "";
+		}
+		return text.replace("\r", "")
+				.replaceAll("[ \\t\\x0B\\f\\u00A0]+", " ")
+				.replaceAll(" *\\n *", "\n")
+				.replaceAll("\\n{2,}", "\n")
+				.strip();
 	}
 
 }

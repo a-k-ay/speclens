@@ -1,9 +1,11 @@
 package dev.akshita.speclens.web;
 
 import dev.akshita.speclens.ai.AiUnavailableException;
+import dev.akshita.speclens.document.DocumentNotFoundException;
+import dev.akshita.speclens.document.PreviewNotAvailableException;
 import dev.akshita.speclens.ingest.DocumentAlreadyExistsException;
 import dev.akshita.speclens.ingest.UnsupportedDocumentException;
-import dev.akshita.speclens.ingest.UploadsDisabledException;
+import dev.akshita.speclens.ingest.ReadOnlyModeException;
 import dev.akshita.speclens.project.ProjectNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +36,16 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
 	}
 
+	@ExceptionHandler(DocumentNotFoundException.class)
+	ProblemDetail documentNotFound(DocumentNotFoundException ex) {
+		return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+	}
+
+	@ExceptionHandler(PreviewNotAvailableException.class)
+	ProblemDetail previewNotAvailable(PreviewNotAvailableException ex) {
+		return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+	}
+
 	@ExceptionHandler(DocumentAlreadyExistsException.class)
 	ProblemDetail documentExists(DocumentAlreadyExistsException ex) {
 		return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
@@ -50,8 +62,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
 	}
 
-	@ExceptionHandler(UploadsDisabledException.class)
-	ProblemDetail uploadsDisabled(UploadsDisabledException ex) {
+	@ExceptionHandler(ReadOnlyModeException.class)
+	ProblemDetail readOnly(ReadOnlyModeException ex) {
 		return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
 	}
 

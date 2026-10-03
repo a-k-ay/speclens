@@ -21,7 +21,11 @@ Every answer must cite a document **and page**, so a chunk must belong to exactl
    (`. ` `? ` `! `) in the second half of the window, then the last space, and only
    hard-cut as a last resort.
 4. Consecutive chunks **overlap by about 150 characters**, aligned to a word start.
-5. Whitespace is collapsed to single spaces, since PDF text has hard line wraps.
+5. Spaces and tabs within a line collapse to one space and blank lines are dropped, but
+   **line breaks are kept**, so table rows and list items stay on separate lines when a
+   citation shows the passage. (Originally all whitespace collapsed to one space; a table
+   uploaded during testing became one unreadable line.) A line break also counts as a
+   word and sentence boundary for cutting.
 6. Size and overlap are configuration (`speclens.chunking.*`), validated at startup.
 
 ## Why

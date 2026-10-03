@@ -2,8 +2,10 @@ package dev.akshita.speclens.eval;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -24,6 +26,23 @@ record EvalReport(List<AnswerableResult> answerable, List<UnanswerableResult> un
 
 	record UnanswerableResult(GoldenSet.Unanswerable question, double topSimilarity, String topSource,
 			boolean refused, String refusalReason, String answer, String error) {
+	}
+
+	/** Headline numbers for the UI footer (served as /eval-summary.json). */
+	Map<String, Object> summary() {
+		Map<String, Object> s = new LinkedHashMap<>();
+		s.put("generated", LocalDate.now().toString());
+		s.put("k", k);
+		s.put("answerable", answerable.size());
+		s.put("unanswerable", unanswerable.size());
+		s.put("hitAtK", count(answerable, r -> r.hybridRank() != null));
+		s.put("hitAt1", count(answerable, r -> r.hybridRank() != null && r.hybridRank() == 1));
+		s.put("answeredWithExpectedCitation", count(answerable, r -> r.answered() && r.citedExpected()));
+		s.put("answerContainsFacts", count(answerable, AnswerableResult::containsFacts));
+		s.put("unanswerableRefused", count(unanswerable, UnanswerableResult::refused));
+		s.put("refusedByThreshold",
+				count(unanswerable, r -> r.refused() && "NO_RELEVANT_SOURCES".equals(r.refusalReason())));
+		return s;
 	}
 
 	String summaryLine() {

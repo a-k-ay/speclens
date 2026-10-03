@@ -9,7 +9,7 @@ Golden set: [`eval/golden-set.json`](../eval/golden-set.json), 20 answerable and
 |---|---|
 | Retrieval hit@5 (hybrid) | **20/20** |
 | Answered and cited an expected page | **20/20** |
-| Answer contains the expected facts | **20/20** |
+| Answer contains the expected facts | **19/20** |
 | Unanswerable questions refused | **7/7** |
 
 ## Retrieval: hybrid vs single search
@@ -66,7 +66,7 @@ If questions whose best source is below the threshold were refused before callin
 | Q05 | If a customer cancels two hours before pickup, do they pay anything? | Northwind_BRD_v1.2.pdf p.3 | 1 | 1 | 1 | 0.678 | yes | yes | yes |
 | Q06 | How frequently does the driver app report the truck's position? | Northwind_BRD_v1.2.pdf p.4 | 1 | 1 | 2 | 0.707 | yes | yes | yes |
 | Q07 | What does BR-7.4 require? | Northwind_BRD_v1.2.pdf p.4 | 2 | 1 | 3 | 0.694 | yes | yes | yes |
-| Q08 | Within how many hours of the e-POD must the customer invoice be produced? | Northwind_BRD_v1.2.pdf p.5; Northwind_Kickoff_Meeting_Notes.docx p.1; Northwind_CR-003_Invoice_Timing.pdf p.1 | 1 | 1 | 1 | 0.736 | yes | yes | yes |
+| Q08 | How soon after delivery must an invoice be generated? | Northwind_BRD_v1.2.pdf p.5; Northwind_Kickoff_Meeting_Notes.docx p.1; Northwind_CR-003_Invoice_Timing.pdf p.1 | 1 | 1 | 1 | 0.727 | yes | yes | yes |
 | Q09 | At what time are invoices sent to the accounting system each night? | Northwind_BRD_v1.2.pdf p.5 | 1 | 1 | 1 | 0.694 | yes | yes | yes |
 | Q10 | In which country or cloud region must customer data be kept? | Northwind_BRD_v1.2.pdf p.6 | 1 | 1 | 2 | 0.669 | yes | yes | yes |
 | Q11 | When is the system planned to go live? | Northwind_SOW_Brightline.pdf p.2; Northwind_Status_Report_Week6.pdf p.1 | 1 | 1 | 1 | 0.676 | yes | yes | yes |
@@ -78,7 +78,7 @@ If questions whose best source is below the threshold were refused before callin
 | Q17 | How much did the invoice timing change cost? | Northwind_CR-003_Invoice_Timing.pdf p.2 | 1 | 1 | 2 | 0.752 | yes | yes | yes |
 | Q18 | What pass rate is needed to exit UAT? | Northwind_UAT_Test_Plan.pdf p.4 | 1 | 1 | 1 | 0.743 | yes | yes | yes |
 | Q19 | Which test case covers BR-6.3? | Northwind_UAT_Test_Plan.pdf p.2 | 1 | 1 | 1 | 0.740 | yes | yes | yes |
-| Q20 | Will the driver app support Marathi in Phase 1? | Northwind_Status_Report_Week6.pdf p.2 | 1 | 1 | 4 | 0.661 | yes | yes | yes |
+| Q20 | Will the driver app support Marathi in Phase 1? | Northwind_Status_Report_Week6.pdf p.2 | 1 | 1 | 4 | 0.661 | yes | yes | **no** |
 
 ## Unanswerable questions
 
@@ -96,26 +96,26 @@ Refusal layers: `NO_RELEVANT_SOURCES` = similarity threshold, no model call; `NO
 
 ## Answers given
 
-- **Q01** How big is Northwind's truck fleet?<br>Northwind's truck fleet consists of 140 trucks [S1]. _(cites: Northwind_BRD_v1.2.pdf p.1)_
-- **Q02** How long does it take today, on average, to raise an invoice after a delivery?<br>Today, on average, an invoice is raised 6 days after delivery [S1]. _(cites: Northwind_BRD_v1.2.pdf p.1)_
-- **Q03** Which user roles will the system have?<br>The system shall support five roles: Admin, Dispatcher, Driver, Customer, and Finance [S1]. _(cites: Northwind_BRD_v1.2.pdf p.2)_
-- **Q04** Which routes are covered in the first phase?<br>* The BRD states that Phase 1 covers the Pune-Mumbai and Pune-Ahmedabad corridors [S1]. * However, the later kickoff meeting notes state that the first live trips will run on the Pune-Mumbai corridor only, with Pune-Ahmedabad following two weeks after go-live [S2]. _(cites: Northwind_BRD_v1.2.pdf p.2, Northwind_Kickoff_Meeting_Notes.docx p.1)_
-- **Q05** If a customer cancels two hours before pickup, do they pay anything?<br>Yes, cancellations made later than 6 hours before the scheduled pickup time attract a cancellation fee of 15 percent of the quoted freight charge [S1]. _(cites: Northwind_BRD_v1.2.pdf p.3)_
-- **Q06** How frequently does the driver app report the truck's position?<br>The driver mobile app reports the truck's GPS location every 5 minutes while a trip is in progress [S1]. _(cites: Northwind_BRD_v1.2.pdf p.4)_
-- **Q07** What does BR-7.4 require?<br>BR-7.4 requires that when there is no mobile network, the driver mobile app must store up to 50 e-PODs offline and automatically upload them when the network returns [S2]. _(cites: Northwind_BRD_v1.2.pdf p.4)_
-- **Q08** Within how many hours of the e-POD must the customer invoice be produced?<br>The customer invoice must be generated within 48 hours of the e-POD being uploaded [S2][S3][S4]. This overrides the original BRD requirement of 24 hours [S1][S3]. _(cites: Northwind_CR-003_Invoice_Timing.pdf p.1, Northwind_Kickoff_Meeting_Notes.docx p.1, Northwind_UAT_Test_Plan.pdf p.3, Northwind_BRD_v1.2.pdf p.5)_
+- **Q01** How big is Northwind's truck fleet?<br>Northwind Freight has a fleet of 140 trucks [S1]. _(cites: Northwind_BRD_v1.2.pdf p.1)_
+- **Q02** How long does it take today, on average, to raise an invoice after a delivery?<br>On average, an invoice is raised 6 days after delivery today [S1]. _(cites: Northwind_BRD_v1.2.pdf p.1)_
+- **Q03** Which user roles will the system have?<br>The system shall support five user roles: Admin, Dispatcher, Driver, Customer, and Finance [S1]. _(cites: Northwind_BRD_v1.2.pdf p.2)_
+- **Q04** Which routes are covered in the first phase?<br>The BRD states that Phase 1 covers the Pune-Mumbai and Pune-Ahmedabad corridors [S1]. However, the kickoff meeting notes record a later decision that the first live trips (pilot route) will run on the Pune-Mumbai corridor only, with Pune-Ahmedabad following two weeks after go-live [S2]. _(cites: Northwind_BRD_v1.2.pdf p.2, Northwind_Kickoff_Meeting_Notes.docx p.1)_
+- **Q05** If a customer cancels two hours before pickup, do they pay anything?<br>Yes, customers who cancel a booking later than 6 hours before the scheduled pickup time attract a cancellation fee of 15 percent of the quoted freight charge [S1]. _(cites: Northwind_BRD_v1.2.pdf p.3)_
+- **Q06** How frequently does the driver app report the truck's position?<br>The driver mobile app shall send the truck's GPS location every 5 minutes while a trip is in progress [S1]. _(cites: Northwind_BRD_v1.2.pdf p.4)_
+- **Q07** What does BR-7.4 require?<br>BR-7.4 requires that when there is no mobile network, the driver mobile app shall store up to 50 e-PODs offline and automatically upload them when the network returns [S2]. _(cites: Northwind_BRD_v1.2.pdf p.4)_
+- **Q08** How soon after delivery must an invoice be generated?<br>An invoice must be generated within 48 hours of the e-POD being uploaded, following an approved change request (CR-003) that overrides the original 24-hour window stated in BR-8.1 [S1][S2][S4]. _(cites: Northwind_CR-003_Invoice_Timing.pdf p.1, Northwind_BRD_v1.2.pdf p.5, Northwind_Kickoff_Meeting_Notes.docx p.1)_
 - **Q09** At what time are invoices sent to the accounting system each night?<br>Invoices and credit notes are exported to Tally ERP every night at 23:00 IST [S1]. _(cites: Northwind_BRD_v1.2.pdf p.5)_
-- **Q10** In which country or cloud region must customer data be kept?<br>All customer and shipment data shall be stored in India, specifically in the AWS Mumbai region [S1]. _(cites: Northwind_BRD_v1.2.pdf p.6)_
+- **Q10** In which country or cloud region must customer data be kept?<br>All customer and shipment data shall be stored in India (AWS Mumbai region) [S1]. _(cites: Northwind_BRD_v1.2.pdf p.6)_
 - **Q11** When is the system planned to go live?<br>The system is planned to go live on 2 February 2027 [S1]. _(cites: Northwind_SOW_Brightline.pdf p.2)_
-- **Q12** What is the total fixed price of the implementation?<br>The fixed fee for the deliverables in the SOW is INR 4,800,000 (forty-eight lakh rupees), excluding GST [S1]. _(cites: Northwind_SOW_Brightline.pdf p.3)_
-- **Q13** What is the daily rate charged for extra work from change requests?<br>Additional work resulting from change requests is charged at INR 6,500 per person-day [S1]. _(cites: Northwind_SOW_Brightline.pdf p.3)_
-- **Q14** How many business days does Northwind have to accept or reject a deliverable?<br>Northwind has 10 business days to accept or reject each deliverable after it is presented [S1]. If Northwind does not respond within that timeframe, the deliverable is deemed accepted [S1]. _(cites: Northwind_SOW_Brightline.pdf p.4)_
-- **Q15** Which company will send the SMS messages?<br>Based on the meeting notes, Northwind will use TextFlow to send booking confirmations and tracking links [S1]. _(cites: Northwind_Kickoff_Meeting_Notes.docx p.1)_
-- **Q16** What risk was raised about drivers' phones, and what is the mitigation?<br>* Risk: About 30 percent of drivers use feature phones and cannot run the application [S1]. * Mitigation: Northwind will purchase 15 Android devices for shared use at the Pune depot [S1]. _(cites: Northwind_Kickoff_Meeting_Notes.docx p.2)_
-- **Q17** How much did the invoice timing change cost?<br>The invoice timing change cost INR 19,500 [S1]. This effort was charged as additional work under the SOW change request process [S1]. _(cites: Northwind_CR-003_Invoice_Timing.pdf p.2)_
-- **Q18** What pass rate is needed to exit UAT?<br>To exit UAT, at least 95 percent of test cases must pass [S1]. _(cites: Northwind_UAT_Test_Plan.pdf p.4)_
-- **Q19** Which test case covers BR-6.3?<br>Test case TC-B-02 covers BR-6.3 [S1]. _(cites: Northwind_UAT_Test_Plan.pdf p.2)_
-- **Q20** Will the driver app support Marathi in Phase 1?<br>No, Marathi language support for the driver app is deferred to Phase 2, and Phase 1 will ship in English only [S1]. Note that earlier kickoff meeting notes listed this as an open question [S2], but the later status report definitively decided to defer it to Phase 2 [S1]. _(cites: Northwind_Status_Report_Week6.pdf p.2, Northwind_Kickoff_Meeting_Notes.docx p.2)_
+- **Q12** What is the total fixed price of the implementation?<br>The fixed fee for the deliverables in the Statement of Work is INR 4,800,000 (forty-eight lakh rupees), excluding GST [S1]. _(cites: Northwind_SOW_Brightline.pdf p.3)_
+- **Q13** What is the daily rate charged for extra work from change requests?<br>Additional work is charged at INR 6,500 per person-day [S1]. _(cites: Northwind_SOW_Brightline.pdf p.3)_
+- **Q14** How many business days does Northwind have to accept or reject a deliverable?<br>Northwind has 10 business days to accept or reject each deliverable after it is presented [S1]. _(cites: Northwind_SOW_Brightline.pdf p.4)_
+- **Q15** Which company will send the SMS messages?<br>Northwind will use TextFlow as the SMS provider for booking confirmations and tracking links [S1]. _(cites: Northwind_Kickoff_Meeting_Notes.docx p.1)_
+- **Q16** What risk was raised about drivers' phones, and what is the mitigation?<br>* **Risk:** About 30 percent of drivers use feature phones and cannot run the application [S1]. * **Mitigation:** Northwind will purchase 15 Android devices for shared use at the Pune depot [S1]. _(cites: Northwind_Kickoff_Meeting_Notes.docx p.2)_
+- **Q17** How much did the invoice timing change cost?<br>The invoice timing change (CR-003) cost INR 19,500 [S1]. This effort of 3 person-days was charged as additional work under the SOW change request process [S1]. _(cites: Northwind_CR-003_Invoice_Timing.pdf p.2)_
+- **Q18** What pass rate is needed to exit UAT?<br>To exit user acceptance testing (UAT), at least 95 percent of test cases must pass [S1]. _(cites: Northwind_UAT_Test_Plan.pdf p.4)_
+- **Q19** Which test case covers BR-6.3?<br>TC-B-02 covers BR-6.3 [S1]. _(cites: Northwind_UAT_Test_Plan.pdf p.2)_
+- **Q20** Will the driver app support Marathi in Phase 1?<br>No, Marathi language support for the driver app is deferred to Phase 1, and Phase 1 will ship in English only [S1]. Earlier kickoff meeting notes had listed this as an open question [S2], but the later status report confirmed the deferral decision [S1]. _(cites: Northwind_Status_Report_Week6.pdf p.2, Northwind_Kickoff_Meeting_Notes.docx p.2)_
 - **N01** What is the penalty for late delivery of a shipment?<br>Not found in the uploaded documents.
 - **N02** Which cloud region hosts the disaster recovery site?<br>Not found in the uploaded documents.
 - **N03** Which payment gateway will customers use to pay online?<br>Not found in the uploaded documents.

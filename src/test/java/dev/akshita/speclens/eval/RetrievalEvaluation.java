@@ -30,13 +30,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Measures SpecLens against eval/golden-set.json using the REAL Gemini models (key from
  * .env) and a fresh pgvector container. Not part of the normal build or CI.
  *
  * Run with: ./mvnw test -Peval
- * Writes:   docs/EVAL.md
+ * Writes:   docs/EVAL.md and src/main/resources/static/eval-summary.json
  */
 @Tag("eval")
 @SpringBootTest
@@ -46,7 +48,7 @@ class RetrievalEvaluation {
 	static final int K = 5;
 
 	/** Pause between questions to stay under free-tier requests-per-minute limits. */
-	static final long PAUSE_MS = Long.getLong("eval.pauseMs", 3000);
+	static final long PAUSE_MS = Long.getLong("eval.pauseMs", 4000);
 
 	@Autowired
 	Environment env;
@@ -94,6 +96,10 @@ class RetrievalEvaluation {
 
 		EvalReport report = new EvalReport(answerable, unanswerable, K, settings());
 		Files.writeString(Path.of("docs/EVAL.md"), report.toMarkdown());
+		// The chat UI footer shows these numbers, so it always reflects the last real run.
+		Files.writeString(Path.of("src/main/resources/static/eval-summary.json"),
+				JsonMapper.builder().enable(SerializationFeature.INDENT_OUTPUT).build()
+						.writeValueAsString(report.summary()));
 		System.out.println(report.summaryLine());
 
 		assertThat(answerable).hasSize(golden.answerable().size());
@@ -119,7 +125,7 @@ class RetrievalEvaluation {
 					response.citations().stream().map(RetrievalEvaluation::describe).toList(), response.answer(), null);
 		}
 		catch (RuntimeException ex) {
-			return AnswerableResult.failed(q, ex.toString());
+			return AnswerableResult.failed(q, rootCause(ex));
 		}
 	}
 
@@ -134,7 +140,7 @@ class RetrievalEvaluation {
 					String.valueOf(response.refusalReason()), response.answer(), null);
 		}
 		catch (RuntimeException ex) {
-			return new UnanswerableResult(q, 0, "", false, "", "", ex.toString());
+			return new UnanswerableResult(q, 0, "", false, "", "", rootCause(ex));
 		}
 	}
 
@@ -176,6 +182,16 @@ class RetrievalEvaluation {
 
 	private static void pause() throws InterruptedException {
 		Thread.sleep(PAUSE_MS);
+	}
+
+	/** The innermost cause, e.g. a 429 quota error instead of "Answer generation failed". */
+	private static String rootCause(Throwable ex) {
+		Throwable root = ex;
+		while (root.getCause() != null && root.getCause() != root) {
+			root = root.getCause();
+		}
+		String message = String.valueOf(root.getMessage());
+		return root.getClass().getSimpleName() + ": " + message.substring(0, Math.min(300, message.length()));
 	}
 
 	private static boolean hasText(String s) {

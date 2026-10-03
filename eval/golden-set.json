@@ -56,7 +56,7 @@
     },
     {
       "id": "Q08",
-      "question": "Within how many hours of the e-POD must the customer invoice be produced?",
+      "question": "How soon after delivery must an invoice be generated?",
       "expected": [
         { "document": "Northwind_BRD_v1.2.pdf", "page": 5 },
         { "document": "Northwind_Kickoff_Meeting_Notes.docx", "page": 1 },

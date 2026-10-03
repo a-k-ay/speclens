@@ -1,0 +1,12 @@
+{
+  "generated" : "2026-10-03",
+  "k" : 5,
+  "answerable" : 20,
+  "unanswerable" : 7,
+  "hitAtK" : 20,
+  "hitAt1" : 19,
+  "answeredWithExpectedCitation" : 20,
+  "answerContainsFacts" : 19,
+  "unanswerableRefused" : 7,
+  "refusedByThreshold" : 1
+}

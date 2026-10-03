@@ -5,8 +5,8 @@
   "unanswerable" : 7,
   "hitAtK" : 20,
   "hitAt1" : 19,
-  "answeredWithExpectedCitation" : 20,
-  "answerContainsFacts" : 19,
+  "answeredWithExpectedCitation" : 19,
+  "answerContainsFacts" : 18,
   "unanswerableRefused" : 7,
   "refusedByThreshold" : 1
 }

@@ -1,0 +1,14 @@
+{
+  "generated" : "2026-10-04",
+  "questions" : 25,
+  "intentCorrect" : 25,
+  "callsCorrect" : 16,
+  "callsChecked" : 16,
+  "factsCorrect" : 15,
+  "factsChecked" : 15,
+  "honestMissing" : 1,
+  "honestMissingChecked" : 1,
+  "trackerAnswers" : 15,
+  "inventedShown" : 0,
+  "withheldByCheck" : 0
+}

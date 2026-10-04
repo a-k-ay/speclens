@@ -87,7 +87,8 @@ public class AgentService {
 					Route.TRACKER, c, tools.calls(), null);
 		}
 		List<String> refs = trackerRefs(answer);
-		List<String> problems = TrackerAnswerCheck.problems(answer, tools.ticketsSeen(), tools.testRunsSeen());
+		List<String> problems = TrackerAnswerCheck.problems(answer, tools.ticketsSeen(), tools.testRunsSeen(),
+				tools.missingTickets());
 		if (refs.isEmpty() || !problems.isEmpty()) {
 			log.warn("Withheld tracker answer ({}): {}", refs.isEmpty() ? "no ticket cited" : problems, answer);
 			return AgentResponse.refused(q, null, RefusalReason.UNVERIFIED_TRACKER_DATA, Route.TRACKER, c,
@@ -140,7 +141,8 @@ public class AgentService {
 		}
 		List<Citation> citations = AskService.citationsFor(answer, sources);
 		List<String> refs = trackerRefs(answer);
-		List<String> problems = TrackerAnswerCheck.problems(answer, tools.ticketsSeen(), tools.testRunsSeen());
+		List<String> problems = TrackerAnswerCheck.problems(answer, tools.ticketsSeen(), tools.testRunsSeen(),
+				tools.missingTickets());
 		if ((citations.isEmpty() && refs.isEmpty()) || !problems.isEmpty()) {
 			log.warn("Withheld traceability answer ({}): {}", problems.isEmpty() ? "nothing cited" : problems, answer);
 			return AgentResponse.refused(q, null,

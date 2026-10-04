@@ -36,6 +36,8 @@ final class TrackerAnswerCheck {
 			Pattern.compile("(?i)\\bblocked\\b"), "Blocked",
 			Pattern.compile("(?i)\\bto do\\b"), "To Do");
 
+	private static final String DOES_NOT_EXIST = "(does not exist)";
+
 	private static final Pattern PASSED = Pattern.compile("(?i)\\bpass(?:ed|es)?\\b");
 	private static final Pattern FAILED = Pattern.compile("(?i)\\bfail(?:ed|s|ure)?\\b");
 
@@ -44,8 +46,18 @@ final class TrackerAnswerCheck {
 
 	/** Problems found; empty means the tracker facts check out. */
 	static List<String> problems(String answer, Map<String, Ticket> tickets, Map<String, TestRun> testRuns) {
+		return problems(answer, tickets, testRuns, Set.of());
+	}
+
+	/**
+	 * @param missingTickets keys a tool looked up that don't exist: the answer may mention them
+	 * ("LOG-999 doesn't exist"), but they have no status to state
+	 */
+	static List<String> problems(String answer, Map<String, Ticket> tickets, Map<String, TestRun> testRuns,
+			Set<String> missingTickets) {
 		List<String> problems = new ArrayList<>();
 		Set<String> knownTickets = new LinkedHashSet<>(tickets.keySet());
+		knownTickets.addAll(missingTickets);
 		testRuns.values().forEach(r -> {
 			if (r.defect() != null) {
 				knownTickets.add(r.defect());
@@ -64,11 +76,23 @@ final class TrackerAnswerCheck {
 		}
 
 		for (String sentence : sentences(answer)) {
-			List<Ticket> named = find(TICKET, sentence).stream().map(tickets::get).filter(t -> t != null).toList();
-			if (!named.isEmpty()) {
+			// Each named ticket with its real status; a ticket that doesn't exist has none, so any
+			// plain status claim about it ("LOG-999 is done") fails.
+			List<String> namedKeys = new ArrayList<>();
+			List<String> statuses = new ArrayList<>();
+			for (String key : find(TICKET, sentence)) {
+				if (tickets.containsKey(key)) {
+					namedKeys.add(key);
+					statuses.add(tickets.get(key).status());
+				}
+				else if (missingTickets.contains(key)) {
+					namedKeys.add(key);
+					statuses.add(DOES_NOT_EXIST);
+				}
+			}
+			if (!namedKeys.isEmpty()) {
 				for (var word : TICKET_STATUS_WORDS.entrySet()) {
-					List<String> statuses = named.stream().map(Ticket::status).toList();
-					check(sentence, word.getKey(), word.getValue(), statuses, keys(named), problems);
+					check(sentence, word.getKey(), word.getValue(), statuses, String.join("/", namedKeys), problems);
 				}
 			}
 			List<TestRun> namedTests = find(TEST, sentence).stream().map(testRuns::get).filter(r -> r != null).toList();
@@ -117,10 +141,6 @@ final class TrackerAnswerCheck {
 	/** Sentences and bullet lines. Splits after ". " but not inside IDs like "BR-8.1". */
 	private static List<String> sentences(String text) {
 		return List.of(text.split("(?<=[.!?])\\s+(?=[A-Z\\[*-])|\\n+"));
-	}
-
-	private static String keys(List<Ticket> tickets) {
-		return String.join("/", tickets.stream().map(Ticket::key).toList());
 	}
 
 }

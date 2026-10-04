@@ -612,13 +612,22 @@ els.file.addEventListener("change", async () => {
 // ---------- footer: real evaluation result ----------
 
 async function loadEvalSummary() {
+  const docs = "https://github.com/a-k-ay/speclens/blob/main/docs/";
   try {
     const s = await api("/eval-summary.json");
-    els.evalSummary.innerHTML = `Evaluation on ${s.answerable + s.unanswerable} golden questions:
-      retrieval hit@${s.k} <strong>${s.hitAtK}/${s.answerable}</strong> ·
-      answered with correct citation <strong>${s.answeredWithExpectedCitation}/${s.answerable}</strong> ·
-      unanswerable refused <strong>${s.unanswerableRefused}/${s.unanswerable}</strong> ·
-      <a href="https://github.com/a-k-ay/speclens/blob/main/docs/EVAL.md" target="_blank" rel="noopener">method and details</a>`;
+    let html = `Evaluation: retrieval hit@${s.k} <strong>${s.hitAtK}/${s.answerable}</strong> ·
+      correct citation <strong>${s.answeredWithExpectedCitation}/${s.answerable}</strong> ·
+      unanswerable refused <strong>${s.unanswerableRefused}/${s.unanswerable}</strong>`;
+    try {
+      const r = await api("/eval-routing-summary.json");
+      html += ` · routing <strong>${r.intentCorrect}/${r.questions}</strong> ·
+        invented tracker statuses shown <strong>${r.inventedShown}</strong>`;
+    } catch {
+      // No routing results published yet.
+    }
+    html += ` · <a href="${docs}EVAL.md" target="_blank" rel="noopener">method</a>,
+      <a href="${docs}EVAL-ROUTING.md" target="_blank" rel="noopener">routing</a>`;
+    els.evalSummary.innerHTML = html;
   } catch {
     els.evalSummary.textContent = "";
   }

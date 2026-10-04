@@ -118,6 +118,21 @@ class AgentRoutingIntegrationTest {
 	}
 
 	@Test
+	void sayingALookedUpTicketDoesNotExistIsAllowedButGivingItAStatusIsNot() {
+		chatModel.classifyAs(Intent.LIVE_STATUS, 0.9, List.of(), List.of("LOG-999"));
+		chatModel.callTools(new ToolStep("getTicket", "{\"ticketId\": \"LOG-999\"}"));
+		chatModel.reply("There is no ticket [LOG-999] in the project tracker.");
+
+		assertThat(ask("What's the status of LOG-999?")).bodyJson()
+				.hasPathSatisfying("$.answered", v -> v.assertThat().isEqualTo(true))
+				.hasPathSatisfying("$.toolCalls[0].outcome", v -> v.assertThat().isEqualTo("NOT_FOUND"));
+
+		chatModel.reply("[LOG-999] is Done.");
+		assertThat(ask("What's the status of LOG-999?")).bodyJson()
+				.hasPathSatisfying("$.refusalReason", v -> v.assertThat().isEqualTo("UNVERIFIED_TRACKER_DATA"));
+	}
+
+	@Test
 	void aTicketNoToolReturnedIsWithheld() {
 		chatModel.classifyAs(Intent.LIVE_STATUS, 0.9, List.of(), List.of("LOG-142"));
 		chatModel.callTools(new ToolStep("getTicket", "{\"ticketId\": \"LOG-142\"}"));

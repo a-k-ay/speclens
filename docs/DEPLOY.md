@@ -57,6 +57,10 @@ and migration V1 runs `CREATE EXTENSION IF NOT EXISTS vector`.
   C1-only JIT to fit comfortably in 512 MB.
 - **Rate limits:** 10 requests per minute and 100 per day per IP, 500 per day overall
   (`RATE_LIMIT_*` environment variables change them).
+- **Gemini free-tier ceiling:** Flash-Lite allows about 15 model requests per minute for the
+  whole key, and one question makes 2 to 4 (classify, tool calls, answer). A burst of visitors
+  can hit that ceiling; the app then answers "please try again" (HTTP 503) instead of failing
+  silently. A paid key, or a lower per-IP limit, removes the bottleneck.
 
 ## Updating
 

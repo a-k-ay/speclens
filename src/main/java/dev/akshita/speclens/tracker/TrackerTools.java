@@ -41,6 +41,7 @@ public class TrackerTools {
 	private final TrackerClient client;
 	private final List<ToolCallRecord> calls = new CopyOnWriteArrayList<>();
 	private final Map<String, Ticket> ticketsSeen = new ConcurrentHashMap<>();
+	private final java.util.Set<String> missingTickets = ConcurrentHashMap.newKeySet();
 	private final Map<String, TestRun> testRunsSeen = new ConcurrentHashMap<>();
 
 	public TrackerTools(TrackerClient client) {
@@ -51,10 +52,14 @@ public class TrackerTools {
 			+ "Returns its summary, status, sprint, assignee and the requirement IDs it implements.")
 	public TicketResult getTicket(@ToolParam(description = "Ticket key such as LOG-142") String ticketId) {
 		return run("getTicket", "ticketId=" + ticketId, () -> {
-			var ticket = client.ticket(TrackerIds.ticket(ticketId));
+			String key = TrackerIds.ticket(ticketId);
+			var ticket = client.ticket(key);
 			ticket.ifPresent(this::remember);
+			if (ticket.isEmpty()) {
+				missingTickets.add(key);
+			}
 			return ticket.map(t -> new Result<>(new TicketResult(true, t, null), Outcome.OK, describe(t)))
-					.orElseGet(() -> new Result<>(new TicketResult(false, null, "No ticket " + ticketId),
+					.orElseGet(() -> new Result<>(new TicketResult(false, null, "No ticket " + key + " exists"),
 							Outcome.NOT_FOUND, "not found"));
 		}, error -> new TicketResult(false, null, error));
 	}
@@ -116,6 +121,11 @@ public class TrackerTools {
 	/** Every UAT run any tool returned, by test case id. */
 	public Map<String, TestRun> testRunsSeen() {
 		return Map.copyOf(testRunsSeen);
+	}
+
+	/** Ticket keys a tool looked up that don't exist; an answer may say so, but give them no status. */
+	public java.util.Set<String> missingTickets() {
+		return java.util.Set.copyOf(missingTickets);
 	}
 
 	private void remember(Ticket ticket) {

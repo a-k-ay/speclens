@@ -35,7 +35,7 @@ Expect `speclens-db` with status `healthy`. This is Postgres 17 with pgvector, o
 ./mvnw verify
 ```
 
-Expect `Tests run: 145, Failures: 0` and `BUILD SUCCESS`. The tests start their **own** throwaway
+Expect `Tests run: 146, Failures: 0` and `BUILD SUCCESS`. The tests start their **own** throwaway
 pgvector container (Testcontainers) and use **fake** AI models, so they never touch your data
 or your Gemini key. This is exactly what CI will run.
 
@@ -319,6 +319,20 @@ TC-I-01 failed.
 **Tracker down:** restart with `TRACKER_SIMULATE_OUTAGE=true` and ask the CR-3 question again:
 `route` becomes `DOCUMENTS`, the tool call shows `UNAVAILABLE`, and `notice` says live tracker
 data is unavailable.
+
+## v2: Run the routing evaluation yourself
+
+[`eval/routing-set.json`](../eval/routing-set.json) has 25 labelled questions (document, live
+status, traceability, out of scope), each with the expected intent and, for tracker questions,
+the expected tool calls and facts.
+
+```bash
+./mvnw test -Peval -Dtest=RoutingEvaluation
+```
+
+About 5 minutes (it paces itself under the free tier's 15 requests a minute). It writes
+[`docs/EVAL-ROUTING.md`](EVAL-ROUTING.md) and the footer numbers. `./mvnw test -Peval` runs
+both evaluations.
 
 ## Start over
 

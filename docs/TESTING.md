@@ -234,6 +234,11 @@ later starts skip files that are already loaded). Then open **http://localhost:8
 | Try this | What you should see |
 |---|---|
 | Project dropdown | "Northwind Freight (sample client)" selected, 6 documents on the left |
+| Sample questions | Grouped by the route they should take: Documents, Project tracker, Documents + tracker, Should be refused |
+| Route badge above each answer | "Documents", "Tracker API" or "Documents + Tracker API", the intent and its confidence |
+| "Tool calls (n)" under a tracker answer | Each tracker API call: tool, arguments, outcome, result, time |
+| Green ticket chips, e.g. LOG-142 | Open that ticket's JSON on the mock tracker API in a new tab |
+| "Is the 48-hour invoice rule from CR-3 built and tested?" | Documents (48 h) vs tracker (24 h version Done, change In Progress, UAT failed), all cited |
 | A sample question | An answer with blue S1 / S2 markers |
 | Click an S1 marker | The source opens below: document, page and the exact passage the model was given |
 | "Documents disagree" sample | 24 h (BRD) vs 48 h (kickoff notes, CR-003), both cited |

@@ -2,18 +2,39 @@
 // Everything that comes from the server (answers, passages, file names) is HTML-escaped
 // before it is put on the page, so document text can never inject markup or scripts.
 
+// Grouped by the route SpecLens should choose, so a visitor can see each one in action.
 const SAMPLE_QUESTIONS = [
-  { text: "When must the customer invoice be generated?", tag: "Documents disagree" },
-  { text: "What is the fixed fee for the implementation and how is it paid?" },
-  { text: "What does BR-6.4 say?" },
-  { text: "Which test case covers BR-6.3?" },
-  { text: "What is the penalty for late delivery of a shipment?", tag: "Not in the documents" },
+  { group: "Documents", text: "When must the customer invoice be generated?", tag: "Documents disagree" },
+  { group: "Documents", text: "What does BR-6.4 say?" },
+  { group: "Project tracker", text: "Which tickets are blocked this sprint?" },
+  { group: "Project tracker", text: "What's the status of LOG-142?" },
+  { group: "Documents + tracker", text: "Is the 48-hour invoice rule from CR-3 built and tested?", tag: "Agreed vs built" },
+  { group: "Documents + tracker", text: "Has the offline e-POD requirement passed UAT?" },
+  { group: "Should be refused", text: "What is the penalty for late delivery of a shipment?", tag: "Not in the documents" },
+  { group: "Should be refused", text: "What's the weather in Pune today?", tag: "Off-topic" },
 ];
 
 const REFUSAL_EXPLANATIONS = {
   NO_RELEVANT_SOURCES: "Nothing in these documents is close to this question, so the model wasn't asked.",
   NOT_IN_SOURCES: "Related passages were found, but none of them contains the answer.",
   UNGROUNDED_ANSWER: "The model's answer didn't cite any document, so it was withheld.",
+  OUT_OF_SCOPE: "This question isn't about the project's documents or its tracker.",
+  UNVERIFIED_TRACKER_DATA: "The answer named a ticket, test or status the tracker didn't return, so it was withheld.",
+  NOT_IN_TRACKER: "The project tracker has nothing that answers this question.",
+};
+
+const ROUTE_LABELS = {
+  DOCUMENTS: "Documents",
+  TRACKER: "Tracker API",
+  DOCUMENTS_AND_TRACKER: "Documents + Tracker API",
+  NONE: "Not routed",
+};
+
+const INTENT_LABELS = {
+  DOC_QUESTION: "document question",
+  LIVE_STATUS: "live status",
+  TRACEABILITY: "traceability",
+  OUT_OF_SCOPE: "out of scope",
 };
 
 const $ = (id) => document.getElementById(id);
@@ -83,19 +104,30 @@ function scrollToBottom() {
 }
 
 // Minimal, safe formatting for model answers: paragraphs, "* " / "- " bullet lists,
-// **bold**, and [S1] citation markers turned into buttons. Input is escaped first.
-function formatAnswer(text, citedIds, messageId) {
+// **bold**, and markers in square brackets. Input is escaped first.
+function formatAnswer(text, citedIds, trackerRefs, messageId) {
+  // One marker: a cited document source becomes a button; a verified ticket becomes a link to
+  // its JSON on the tracker API; a verified UAT test becomes a chip; anything else stays text.
+  const marker = (p) => {
+    if (citedIds.has(p)) {
+      return `<button type="button" class="cite" data-msg="${messageId}" data-source="${p}" aria-label="Show source ${p}">${p}</button>`;
+    }
+    if (trackerRefs.has(p) && /^LOG-\d+$/.test(p)) {
+      return `<a class="ticket" href="/mock-tracker/rest/api/3/issue/${p}" target="_blank" rel="noopener"
+        title="Open ${p} in the tracker API (JSON)">${p}</a>`;
+    }
+    if (trackerRefs.has(p)) return `<span class="ticket test" title="UAT test">${p}</span>`;
+    return null;
+  };
   const inline = (line) => escapeHtml(line)
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    // Markers come as [S1] or grouped, [S1, S2] or [S3, TC-I-01]: each cited S-number
-    // becomes a button, anything else in the brackets stays as text.
+    // Markers come alone ([S1], [LOG-142]) or grouped ([S1, S2], [S3, TC-I-01]).
     .replace(/\[([^\[\]]{1,80})\]/g, (match, inner) => {
-      const parts = inner.split(",").map((p) => p.trim());
-      if (!parts.some((p) => citedIds.has(p))) return match;
-      const rendered = parts.map((p) => citedIds.has(p)
-        ? `<button type="button" class="cite" data-msg="${messageId}" data-source="${p}" aria-label="Show source ${p}">${p}</button>`
-        : p);
-      return parts.every((p) => citedIds.has(p)) ? rendered.join("") : `[${rendered.join(", ")}]`;
+      const parts = inner.split(/[,;]/).map((p) => p.trim()).filter(Boolean);
+      const rendered = parts.map((p) => marker(p));
+      if (rendered.every((r) => r === null)) return match;
+      const html = rendered.map((r, i) => r ?? parts[i]);
+      return rendered.every((r) => r !== null) ? html.join("") : `[${html.join(", ")}]`;
     });
 
   const html = [];
@@ -142,10 +174,45 @@ function addQuestion(text) {
 function addLoading() {
   const div = document.createElement("div");
   div.className = "msg msg-loading";
-  div.innerHTML = '<span class="spinner" aria-hidden="true"></span><span>Searching the documents...</span>';
+  div.innerHTML = '<span class="spinner" aria-hidden="true"></span><span>Working out where to look, then searching...</span>';
   els.thread.appendChild(div);
   scrollToBottom();
   return div;
+}
+
+// How the question was handled: route badge, intent, fallback, and any notice.
+// Answers saved before routing existed have no route, so nothing is shown for them.
+function renderRoute(response) {
+  if (!response.route) return "";
+  const intent = INTENT_LABELS[response.intent] ?? "";
+  const confidence = typeof response.intentConfidence === "number" ? response.intentConfidence.toFixed(2) : "";
+  return `
+    <div class="route-bar">
+      <span class="route-badge route-${escapeHtml(response.route)}">${escapeHtml(ROUTE_LABELS[response.route] ?? response.route)}</span>
+      <span class="route-meta" title="What the intent classifier decided, and its confidence">
+        ${escapeHtml(intent)}${confidence ? ` · ${confidence}` : ""}</span>
+      ${response.routedByFallback ? '<span class="route-meta fallback" title="Below the confidence threshold, questions use the document path">low confidence → documents</span>' : ""}
+    </div>
+    ${response.notice ? `<p class="notice">${escapeHtml(response.notice)}</p>` : ""}`;
+}
+
+// Every tracker call made for this answer, collapsed by default.
+function renderToolCalls(response) {
+  const calls = response.toolCalls ?? [];
+  if (!calls.length) return "";
+  return `
+    <details class="tool-calls">
+      <summary>Tool calls (${calls.length})</summary>
+      <ol>
+        ${calls.map((c) => `
+          <li>
+            <code>${escapeHtml(c.tool)}(${escapeHtml(c.arguments)})</code>
+            <span class="outcome outcome-${escapeHtml(c.outcome)}">${escapeHtml(c.outcome)}</span>
+            <span class="tool-detail">${escapeHtml(c.detail)}</span>
+            <span class="muted small">${c.durationMs} ms</span>
+          </li>`).join("")}
+      </ol>
+    </details>`;
 }
 
 function renderAnswer(response) {
@@ -155,17 +222,22 @@ function renderAnswer(response) {
   if (!response.answered) {
     div.className = "msg msg-answer msg-refused";
     div.innerHTML = `
+      ${renderRoute(response)}
       <p class="refusal-title">${escapeHtml(response.answer)}</p>
-      <p class="refusal-reason">${escapeHtml(REFUSAL_EXPLANATIONS[response.refusalReason] || "")}</p>`;
+      <p class="refusal-reason">${escapeHtml(REFUSAL_EXPLANATIONS[response.refusalReason] || "")}</p>
+      ${renderToolCalls(response)}`;
     return div;
   }
 
   const citedIds = new Set(response.citations.map((c) => c.sourceId));
+  const trackerRefs = new Set(response.trackerRefs ?? []);
   div.className = "msg msg-answer";
   div.innerHTML = `
-    <div class="answer-text">${formatAnswer(response.answer, citedIds, messageId)}</div>
-    <div class="sources">
-      <p class="sources-title">Sources</p>
+    ${renderRoute(response)}
+    <div class="answer-text">${formatAnswer(response.answer, citedIds, trackerRefs, messageId)}</div>
+    ${renderToolCalls(response)}
+    <div class="sources" ${response.citations.length ? "" : "hidden"}>
+      <p class="sources-title">Document sources</p>
       ${response.citations.map((c) => `
         <details class="source" id="${messageId}-${c.sourceId}">
           <summary>
@@ -283,19 +355,29 @@ els.question.addEventListener("input", autosize);
 
 function renderSamples() {
   els.samples.innerHTML = "";
-  for (const sample of SAMPLE_QUESTIONS) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "sample";
-    button.textContent = sample.text;
-    if (sample.tag) {
-      const tag = document.createElement("span");
-      tag.className = "sample-tag";
-      tag.textContent = sample.tag;
-      button.appendChild(tag);
+  const groups = [...new Set(SAMPLE_QUESTIONS.map((s) => s.group))];
+  for (const group of groups) {
+    const row = document.createElement("div");
+    row.className = "sample-group";
+    const label = document.createElement("span");
+    label.className = "sample-group-label";
+    label.textContent = group;
+    row.appendChild(label);
+    for (const sample of SAMPLE_QUESTIONS.filter((s) => s.group === group)) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "sample";
+      button.textContent = sample.text;
+      if (sample.tag) {
+        const tag = document.createElement("span");
+        tag.className = "sample-tag";
+        tag.textContent = sample.tag;
+        button.appendChild(tag);
+      }
+      button.addEventListener("click", () => ask(sample.text));
+      row.appendChild(button);
     }
-    button.addEventListener("click", () => ask(sample.text));
-    els.samples.appendChild(button);
+    els.samples.appendChild(row);
   }
 }
 
@@ -470,13 +552,27 @@ function toMarkdown(projectName, entries) {
   const parts = [`# SpecLens conversation: ${projectName}`, `Exported ${new Date().toLocaleString()}`, ""];
   for (const { question, response, at } of entries) {
     parts.push("---", "", `## ${question}`, `_Asked ${new Date(at).toLocaleString()}_`, "");
+    if (response.route) {
+      parts.push(`_Route: ${ROUTE_LABELS[response.route] ?? response.route} (intent: ${INTENT_LABELS[response.intent] ?? response.intent})_`, "");
+    }
+    if (response.notice) parts.push(`> Note: ${response.notice}`, "");
     if (!response.answered) {
       parts.push(`**${response.answer}** ${REFUSAL_EXPLANATIONS[response.refusalReason] || ""}`, "");
-      continue;
+    } else {
+      parts.push(response.answer, "");
+      if (response.citations.length) {
+        parts.push("**Document sources**", "");
+        for (const c of response.citations) {
+          parts.push(`- **[${c.sourceId}] ${c.documentName}, page ${c.page}**`, "", quote(c.passage), "");
+        }
+      }
     }
-    parts.push(response.answer, "", "**Sources**", "");
-    for (const c of response.citations) {
-      parts.push(`- **[${c.sourceId}] ${c.documentName}, page ${c.page}**`, "", quote(c.passage), "");
+    if (response.toolCalls?.length) {
+      parts.push("**Tracker API calls**", "");
+      for (const c of response.toolCalls) {
+        parts.push(`- \`${c.tool}(${c.arguments})\` → ${c.outcome}: ${c.detail}`);
+      }
+      parts.push("");
     }
   }
   return parts.join("\n");

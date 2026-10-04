@@ -17,7 +17,7 @@
       </svg>
       <div>
         <h1>SpecLens</h1>
-        <p class="tagline">Ask your requirements documents. Every answer cites its page.</p>
+        <p class="tagline">Ask your requirements documents and project tracker. Every answer cites its source.</p>
       </div>
     </div>
     <a class="gh-link" href="https://github.com/a-k-ay/speclens" target="_blank" rel="noopener">Source on GitHub</a>
@@ -58,8 +58,10 @@
 
       <div class="note">
         <strong>Demo data is fictional.</strong>
-        Northwind Freight and Brightline Digital are made-up companies. The documents include a
-        deliberate contradiction (24 h vs 48 h invoicing) and questions they can't answer.
+        Northwind Freight and Brightline Digital are made-up companies. The documents disagree on
+        invoicing (24 h vs 48 h), and the <a href="/mock-tracker/rest/api/3/search?sprint=Sprint%209"
+        target="_blank" rel="noopener">project tracker</a> (a mock, Jira-style API) shows the 24 h version
+        was built.
       </div>
     </aside>
 
@@ -75,16 +77,17 @@
       </div>
       <div id="thread" class="thread" aria-live="polite">
         <div id="intro" class="intro">
-          <h2>Ask about the client's BRD, SOW, meeting notes and more</h2>
-          <p class="muted">SpecLens searches the documents (by meaning and by keyword), answers only from
-            what it finds, and cites the document and page. If the answer isn't there, it says so.</p>
+          <h2>Ask about the client's documents and the project's progress</h2>
+          <p class="muted">SpecLens first works out what you're asking, then searches the documents (BRD, SOW,
+            change requests, UAT plan, notes), calls the project tracker's API, or both. Every answer cites the
+            document page or ticket it came from; if the answer isn't there, it says so.</p>
           <div class="samples" id="samples"></div>
         </div>
       </div>
 
       <form id="ask-form" class="composer">
         <label for="question" class="visually-hidden">Your question</label>
-        <textarea id="question" rows="1" maxlength="500" placeholder="Ask a question about the documents..." required></textarea>
+        <textarea id="question" rows="1" maxlength="500" placeholder="Ask about the documents or the project's progress..." required></textarea>
         <button id="ask-btn" class="btn btn-primary" type="submit">Ask</button>
       </form>
     </section>

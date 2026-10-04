@@ -67,8 +67,7 @@ public class AgentService {
 		}
 		return switch (c.intent()) {
 			case DOC_QUESTION -> AgentResponse.fromDocuments(documents.ask(projectId, q), c, false, List.of(), null);
-			case OUT_OF_SCOPE -> AgentResponse.refused(q, null, RefusalReason.OUT_OF_SCOPE, Route.NONE, c, List.of(),
-					"This question isn't about the project's documents or tracker.");
+			case OUT_OF_SCOPE -> AgentResponse.refused(q, null, RefusalReason.OUT_OF_SCOPE, Route.NONE, c, List.of(), null);
 			case LIVE_STATUS -> liveStatus(projectId, q, c);
 			case TRACEABILITY -> traceability(projectId, q, c);
 		};
@@ -92,7 +91,7 @@ public class AgentService {
 		if (refs.isEmpty() || !problems.isEmpty()) {
 			log.warn("Withheld tracker answer ({}): {}", refs.isEmpty() ? "no ticket cited" : problems, answer);
 			return AgentResponse.refused(q, null, RefusalReason.UNVERIFIED_TRACKER_DATA, Route.TRACKER, c,
-					tools.calls(), "The answer couldn't be verified against the tracker data, so it was withheld.");
+					tools.calls(), null);
 		}
 		return new AgentResponse(q, answer, true, null, List.of(), Route.TRACKER, c.intent(), c.confidence(), false,
 				tools.calls(), refs, null);
@@ -146,8 +145,7 @@ public class AgentService {
 			log.warn("Withheld traceability answer ({}): {}", problems.isEmpty() ? "nothing cited" : problems, answer);
 			return AgentResponse.refused(q, null,
 					problems.isEmpty() ? RefusalReason.UNGROUNDED_ANSWER : RefusalReason.UNVERIFIED_TRACKER_DATA,
-					Route.DOCUMENTS_AND_TRACKER, c, tools.calls(),
-					"The answer couldn't be verified against the documents and tracker data, so it was withheld.");
+					Route.DOCUMENTS_AND_TRACKER, c, tools.calls(), null);
 		}
 		return new AgentResponse(q, answer, true, null, citations, Route.DOCUMENTS_AND_TRACKER, c.intent(),
 				c.confidence(), false, tools.calls(), refs, null);

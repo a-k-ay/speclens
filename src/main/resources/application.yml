@@ -79,6 +79,11 @@ speclens:
     per-ip-per-minute: ${RATE_LIMIT_PER_IP_PER_MINUTE:10}
     per-ip-per-day: ${RATE_LIMIT_PER_IP_PER_DAY:100}
     global-per-day: ${RATE_LIMIT_GLOBAL_PER_DAY:500}
+  mock-tracker:
+    # Fictional Jira-like tracker served by this app under /mock-tracker (see docs/adr/0011).
+    enabled: ${MOCK_TRACKER_ENABLED:true}
+    # Make every tracker call return 503, to demo and test the "tracker is down" path.
+    simulate-outage: ${TRACKER_SIMULATE_OUTAGE:false}
 
 management:
   endpoints:

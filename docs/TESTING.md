@@ -35,7 +35,7 @@ Expect `speclens-db` with status `healthy`. This is Postgres 17 with pgvector, o
 ./mvnw verify
 ```
 
-Expect `Tests run: 63, Failures: 0` and `BUILD SUCCESS`. The tests start their **own** throwaway
+Expect `Tests run: 75, Failures: 0` and `BUILD SUCCESS`. The tests start their **own** throwaway
 pgvector container (Testcontainers) and use **fake** AI models, so they never touch your data
 or your Gemini key. This is exactly what CI will run.
 
@@ -254,6 +254,32 @@ project and all delete buttons disappear, and the server itself refuses those re
 **Rate limits:** asking, uploading and generating are limited to 10 requests per minute and
 100 per day per IP, and 500 per day in total. To see it, send 11 questions within a minute;
 the 11th returns `429 Too Many Requests` with a `Retry-After` header.
+
+## v2: The mock project tracker
+
+A fictional, read-only "Jira" for the Northwind project, served by the app under
+`/mock-tracker`. Its tickets and UAT runs are tagged with the same requirement IDs as the
+documents (BR-8.1, CR-003, ...). Data: `src/main/resources/mock-tracker/northwind-tracker.json`,
+snapshot 8 January 2027 (after UAT, before go-live).
+
+```bash
+T=localhost:8080/mock-tracker/rest/api/3
+curl -s $T/project                                  # current sprint: Sprint 9
+curl -s $T/issue/LOG-142                            # Done: built the OLD 24-hour invoice rule
+curl -s "$T/search?requirement=BR-8.1"              # LOG-142, LOG-171 (CR-003 change), LOG-190 (bug)
+curl -s "$T/search?status=Blocked"                  # LOG-106, LOG-146
+curl -s "$T/test-runs?requirement=CR-003"           # TC-I-01 FAIL, defect LOG-190
+curl -s "$T/search?requirement=BR-8.4"              # total 0: a requirement with no ticket
+curl -s -o /dev/null -w "%{http_code}
+" $T/issue/LOG-999   # 404, Jira-style error
+```
+
+**The planted conflict:** CR-003 (documents) moved invoicing to 48 hours, but the tracker
+shows the 24-hour version as Done, the CR-003 change still In Progress and the UAT test
+failed. A traceability question should surface exactly that.
+
+To see the "tracker is down" behaviour, start the app with `TRACKER_SIMULATE_OUTAGE=true`:
+every tracker endpoint then returns `503`.
 
 ## Start over
 

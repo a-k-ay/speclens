@@ -1,0 +1,156 @@
+{
+  "_comment": "Fictional project-tracker data for the SpecLens demo. Matches the fictional Northwind Freight sample documents (requirement IDs, people, dates). Not real data.",
+  "project": { "key": "LOG", "name": "FreightDesk (Northwind Freight)" },
+  "snapshotDate": "2027-01-08",
+  "currentSprint": "Sprint 9",
+  "issues": [
+    {
+      "key": "LOG-101", "type": "Story", "status": "Done", "sprint": "Sprint 2", "priority": "High",
+      "assignee": "Arjun Patel", "requirements": ["BR-6.1"], "updated": "2026-10-28",
+      "summary": "Customer creates a booking in the portal",
+      "description": "Booking form with pickup address, drop address, pickup date, cargo type and weight."
+    },
+    {
+      "key": "LOG-102", "type": "Story", "status": "Done", "sprint": "Sprint 2", "priority": "High",
+      "assignee": "Arjun Patel", "requirements": ["BR-6.2"], "updated": "2026-10-30",
+      "summary": "Booking confirmation by email and SMS within 2 minutes",
+      "description": "Send confirmation through the TextFlow SMS gateway and email after a booking is submitted."
+    },
+    {
+      "key": "LOG-103", "type": "Story", "status": "Done", "sprint": "Sprint 3", "priority": "Medium",
+      "assignee": "Neha Joshi", "requirements": ["BR-6.3"], "updated": "2026-11-06",
+      "summary": "Limit a booking to 20 consignments",
+      "description": "Block adding a 21st consignment with a clear message."
+    },
+    {
+      "key": "LOG-104", "type": "Story", "status": "Done", "sprint": "Sprint 3", "priority": "Medium",
+      "assignee": "Neha Joshi", "requirements": ["BR-6.4"], "updated": "2026-11-10",
+      "summary": "Cancellation fee of 15% within 6 hours of pickup",
+      "description": "Free cancellation up to 6 hours before pickup; after that charge 15% of the quoted freight."
+    },
+    {
+      "key": "LOG-105", "type": "Story", "status": "Done", "sprint": "Sprint 4", "priority": "High",
+      "assignee": "Karthik Rao", "requirements": ["BR-6.5"], "updated": "2026-11-18",
+      "summary": "Prevent assigning a truck below the booking weight",
+      "description": "Dispatcher cannot assign a truck whose registered capacity is lower than the booking weight."
+    },
+    {
+      "key": "LOG-106", "type": "Story", "status": "Blocked", "sprint": "Sprint 9", "priority": "High",
+      "assignee": "Karthik Rao", "requirements": ["BR-6.6"], "updated": "2027-01-06",
+      "summary": "Dispatch lead approval for hazardous cargo bookings",
+      "description": "Blocked: waiting for Northwind to confirm who approves when the Dispatch lead is on leave."
+    },
+    {
+      "key": "LOG-121", "type": "Story", "status": "Done", "sprint": "Sprint 4", "priority": "High",
+      "assignee": "Neha Joshi", "requirements": ["BR-7.1"], "updated": "2026-11-20",
+      "summary": "Driver app sends GPS location every 5 minutes",
+      "description": "Background location updates while a trip is in progress."
+    },
+    {
+      "key": "LOG-122", "type": "Story", "status": "In Review", "sprint": "Sprint 9", "priority": "Medium",
+      "assignee": "Neha Joshi", "requirements": ["BR-7.2"], "updated": "2027-01-07",
+      "summary": "Tracking link by SMS at pickup with ETA",
+      "description": "Public tracking page showing latest location and estimated time of arrival."
+    },
+    {
+      "key": "LOG-123", "type": "Story", "status": "Done", "sprint": "Sprint 5", "priority": "High",
+      "assignee": "Karthik Rao", "requirements": ["BR-7.3"], "updated": "2026-12-02",
+      "summary": "Capture e-POD with photo and signature",
+      "description": "Driver app captures a photo of the delivered goods and the recipient's signature."
+    },
+    {
+      "key": "LOG-124", "type": "Story", "status": "Done", "sprint": "Sprint 5", "priority": "High",
+      "assignee": "Karthik Rao", "requirements": ["BR-7.4"], "updated": "2026-12-04",
+      "summary": "Store e-PODs offline and sync when the network returns",
+      "description": "Queue e-PODs on the device when there is no network and upload them automatically later."
+    },
+    {
+      "key": "LOG-125", "type": "Story", "status": "Done", "sprint": "Sprint 5", "priority": "Medium",
+      "assignee": "Arjun Patel", "requirements": ["BR-7.5"], "updated": "2026-12-03",
+      "summary": "Mark shipment Delivered only after e-POD upload",
+      "description": "Shipment status changes to Delivered when the e-POD upload succeeds."
+    },
+    {
+      "key": "LOG-142", "type": "Story", "status": "Done", "sprint": "Sprint 6", "priority": "High",
+      "assignee": "Arjun Patel", "requirements": ["BR-8.1"], "updated": "2026-12-09",
+      "summary": "Invoice scheduler: generate invoice within 24 hours of e-POD upload",
+      "description": "Nightly and hourly jobs generate the customer invoice within 24 hours of the e-POD upload."
+    },
+    {
+      "key": "LOG-143", "type": "Story", "status": "Done", "sprint": "Sprint 6", "priority": "High",
+      "assignee": "Arjun Patel", "requirements": ["BR-8.2"], "updated": "2026-12-10",
+      "summary": "Invoices in INR with 18% GST",
+      "description": "Invoice template and tax calculation."
+    },
+    {
+      "key": "LOG-144", "type": "Story", "status": "Done", "sprint": "Sprint 7", "priority": "Medium",
+      "assignee": "Neha Joshi", "requirements": ["BR-8.3"], "updated": "2026-12-14",
+      "summary": "Finance Manager approval for credit notes above INR 50,000",
+      "description": "Credit notes above the limit wait in an approval queue."
+    },
+    {
+      "key": "LOG-146", "type": "Story", "status": "Blocked", "sprint": "Sprint 9", "priority": "High",
+      "assignee": "Karthik Rao", "requirements": ["BR-8.5"], "updated": "2027-01-05",
+      "summary": "Nightly export of invoices and credit notes to Tally ERP at 23:00 IST",
+      "description": "Blocked: Northwind has not shared Tally API credentials (risk R-07)."
+    },
+    {
+      "key": "LOG-161", "type": "Story", "status": "In Progress", "sprint": "Sprint 9", "priority": "Medium",
+      "assignee": "Divya Shetty", "requirements": ["BR-9.1"], "updated": "2027-01-07",
+      "summary": "Delayed shipments dashboard refreshed every 15 minutes",
+      "description": "Operations dashboard listing shipments past their estimated time of arrival."
+    },
+    {
+      "key": "LOG-162", "type": "Story", "status": "To Do", "sprint": "Sprint 10", "priority": "Low",
+      "assignee": "Divya Shetty", "requirements": ["BR-9.2"], "updated": "2026-12-20",
+      "summary": "Weekly carrier performance report email (Mondays 08:00 IST)",
+      "description": "Scheduled report to the Head of Operations."
+    },
+    {
+      "key": "LOG-163", "type": "Story", "status": "To Do", "sprint": "Sprint 10", "priority": "Low",
+      "assignee": "Divya Shetty", "requirements": ["BR-9.3"], "updated": "2026-12-20",
+      "summary": "Monthly ageing report of unpaid invoices as Excel",
+      "description": "Finance download of unpaid invoices grouped by age."
+    },
+    {
+      "key": "LOG-171", "type": "Story", "status": "In Progress", "sprint": "Sprint 9", "priority": "Highest",
+      "assignee": "Arjun Patel", "requirements": ["CR-003", "BR-8.1"], "updated": "2027-01-07",
+      "summary": "CR-003: finance review queue and 48-hour invoice window",
+      "description": "Add a finance review step for e-POD photos and move invoice generation to within 48 hours of e-POD upload, as approved in CR-003."
+    },
+    {
+      "key": "LOG-182", "type": "Story", "status": "Done", "sprint": "Sprint 2", "priority": "High",
+      "assignee": "Karthik Rao", "requirements": ["NFR-4"], "updated": "2026-10-29",
+      "summary": "Sign-in with password and SMS one-time code; 30-minute session timeout",
+      "description": "Two-factor sign-in and idle session expiry."
+    },
+    {
+      "key": "LOG-188", "type": "Bug", "status": "In Progress", "sprint": "Sprint 9", "priority": "High",
+      "assignee": "Neha Joshi", "requirements": ["BR-6.4"], "updated": "2027-01-07",
+      "summary": "Cancellation fee shown only after the customer confirms",
+      "description": "Found in UAT (TC-B-03): the 15% fee should be shown before the customer confirms the cancellation."
+    },
+    {
+      "key": "LOG-189", "type": "Bug", "status": "In Progress", "sprint": "Sprint 9", "priority": "Highest",
+      "assignee": "Karthik Rao", "requirements": ["BR-7.4"], "updated": "2027-01-06",
+      "summary": "Offline e-PODs fail to upload after 20 are queued",
+      "description": "Found in UAT (TC-T-04): uploads fail once more than 20 e-PODs are stored offline; the requirement is 50."
+    },
+    {
+      "key": "LOG-190", "type": "Bug", "status": "To Do", "sprint": "Sprint 9", "priority": "Highest",
+      "assignee": "Arjun Patel", "requirements": ["BR-8.1", "CR-003"], "updated": "2027-01-06",
+      "summary": "Invoices generated before finance has reviewed the e-POD",
+      "description": "Found in UAT (TC-I-01): invoice created 3 hours after e-POD upload with no finance review, following the old 24-hour rule."
+    }
+  ],
+  "testRuns": [
+    { "testCase": "TC-B-01", "title": "Create a booking and receive confirmation", "requirements": ["BR-6.1", "BR-6.2"], "status": "PASS", "executedOn": "2026-12-16", "executedBy": "Sandeep Kulkarni", "defect": null, "comment": "Confirmation SMS arrived in under a minute." },
+    { "testCase": "TC-B-02", "title": "Block the 21st consignment", "requirements": ["BR-6.3"], "status": "PASS", "executedOn": "2026-12-16", "executedBy": "Sandeep Kulkarni", "defect": null, "comment": "" },
+    { "testCase": "TC-B-03", "title": "Cancel 3 hours before pickup", "requirements": ["BR-6.4"], "status": "FAIL", "executedOn": "2026-12-17", "executedBy": "Sandeep Kulkarni", "defect": "LOG-188", "comment": "Fee appears only after the cancellation is confirmed." },
+    { "testCase": "TC-B-04", "title": "Assign an undersized truck", "requirements": ["BR-6.5"], "status": "PASS", "executedOn": "2026-12-17", "executedBy": "Sandeep Kulkarni", "defect": null, "comment": "" },
+    { "testCase": "TC-T-01", "title": "Truck position updates on the dashboard", "requirements": ["BR-7.1"], "status": "PASS", "executedOn": "2026-12-18", "executedBy": "Vikram Shah", "defect": null, "comment": "" },
+    { "testCase": "TC-T-04", "title": "Offline e-PODs upload after reconnecting", "requirements": ["BR-7.4"], "status": "FAIL", "executedOn": "2026-12-19", "executedBy": "Vikram Shah", "defect": "LOG-189", "comment": "21st and later e-PODs failed to upload." },
+    { "testCase": "TC-I-01", "title": "Invoice after e-POD upload and finance review", "requirements": ["BR-8.1", "BR-8.2", "CR-003"], "status": "FAIL", "executedOn": "2026-12-22", "executedBy": "Meera Iyer", "defect": "LOG-190", "comment": "GST correct, but the invoice was generated before finance review (old 24-hour rule)." },
+    { "testCase": "TC-I-03", "title": "Credit note above INR 50,000 waits for approval", "requirements": ["BR-8.3"], "status": "PASS", "executedOn": "2026-12-22", "executedBy": "Meera Iyer", "defect": null, "comment": "" }
+  ]
+}

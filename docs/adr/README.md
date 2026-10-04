@@ -13,3 +13,5 @@ Short records of decisions that shaped SpecLens: the context, what was decided, 
 | [0007](0007-document-glossary.md) | Carry abbreviation definitions from the document into the prompt | Accepted |
 | [0008](0008-show-the-original-page.md) | Keep the original file and show the cited PDF page as an image | Accepted |
 | [0009](0009-chat-history-in-the-browser.md) | Chat history stays in the browser; read-only public demo | Accepted |
+| [0011](0011-mock-tracker-behind-http.md) | A mock project tracker, called over a real HTTP boundary | Accepted |
+| [0012](0012-read-only-tools-and-failure-handling.md) | Read-only tracker tools, validated arguments, and graceful failure | Accepted |

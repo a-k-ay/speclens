@@ -35,7 +35,7 @@ Expect `speclens-db` with status `healthy`. This is Postgres 17 with pgvector, o
 ./mvnw verify
 ```
 
-Expect `Tests run: 122, Failures: 0` and `BUILD SUCCESS`. The tests start their **own** throwaway
+Expect `Tests run: 145, Failures: 0` and `BUILD SUCCESS`. The tests start their **own** throwaway
 pgvector container (Testcontainers) and use **fake** AI models, so they never touch your data
 or your Gemini key. This is exactly what CI will run.
 
@@ -280,6 +280,40 @@ failed. A traceability question should surface exactly that.
 
 To see the "tracker is down" behaviour, start the app with `TRACKER_SIMULATE_OUTAGE=true`:
 every tracker endpoint then returns `503`.
+
+## v2: Questions routed to documents, tracker, or both
+
+Every question is first classified (intent), then routed. Start the app as usual and ask one
+question per route. The response now also has `intent`, `route`, `toolCalls` and `trackerRefs`.
+
+```bash
+ask() {
+  curl -s -X POST localhost:8080/api/projects/$P/ask -H 'Content-Type: application/json'     -d "{\"question\":\"$1\"}" | python -m json.tool; echo
+}
+
+ask "What does the BRD say about invoice timing?"            # DOC_QUESTION  -> route DOCUMENTS, no tool calls
+ask "What's the status of LOG-142?"                         # LIVE_STATUS   -> route TRACKER, getTicket(LOG-142)
+ask "Which tickets are blocked this sprint?"                # LIVE_STATUS   -> searchTickets(Blocked, current)
+ask "Is the 48-hour invoice rule from CR-3 built and tested?"   # TRACEABILITY -> DOCUMENTS_AND_TRACKER
+ask "Has the offline e-POD requirement passed UAT?"         # TRACEABILITY, finds BR-7.4 with no ID in the question
+ask "Is the payment terms requirement implemented?"         # TRACEABILITY: BR-8.4 has no ticket, says so
+ask "What's the weather in Pune today?"                     # OUT_OF_SCOPE  -> refused, no answer call
+```
+
+| Look at | What it shows |
+|---|---|
+| `intent`, `intentConfidence` | What the classifier decided (below 0.6 falls back to documents: `routedByFallback: true`) |
+| `toolCalls` | Every tracker call: tool, arguments, outcome (`OK`, `NOT_FOUND`, `REJECTED`, `UNAVAILABLE`) |
+| `citations` / `trackerRefs` | Document pages cited, and ticket/test IDs cited |
+| `refusalReason: UNVERIFIED_TRACKER_DATA` | The answer named a ticket or status no tool returned, so it was withheld |
+
+**The CR-3 question is the demo moment:** the documents say 48 hours (CR-003), but the tracker
+shows LOG-142 (Done) built the old 24-hour rule, LOG-171 (the change) is In Progress and UAT
+TC-I-01 failed.
+
+**Tracker down:** restart with `TRACKER_SIMULATE_OUTAGE=true` and ask the CR-3 question again:
+`route` becomes `DOCUMENTS`, the tool call shows `UNAVAILABLE`, and `notice` says live tracker
+data is unavailable.
 
 ## Start over
 

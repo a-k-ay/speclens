@@ -72,8 +72,30 @@ public class AskService {
 		return AskResponse.answered(q, answer.strip(), toCitations(cited, sources));
 	}
 
+	// ---- building blocks shared with the traceability route (dev.akshita.speclens.agent) ----
+
+	/** Hybrid retrieval for a question: the same top sources the document route would use. */
+	public List<RetrievedChunk> retrieveSources(long projectId, String question) {
+		return retriever.retrieve(projectId, question, embedQuestion(question));
+	}
+
+	/** The source blocks plus definitions of abbreviations used in them. */
+	public String documentContext(long projectId, String question, List<RetrievedChunk> sources) {
+		return GroundedPrompt.context(sources,
+				GroundedPrompt.relevantDefinitions(documents.findGlossary(projectId), question, sources));
+	}
+
+	/** Citations for the [S#] markers in an answer that point at real sources. */
+	public static List<Citation> citationsFor(String answer, List<RetrievedChunk> sources) {
+		return toCitations(CitationParser.citedSourceIndexes(answer, sources.size()), sources);
+	}
+
+	public static boolean isRefusal(String answer) {
+		return CitationParser.isRefusal(answer);
+	}
+
 	/** Highest cosine similarity between the question and any retrieved source (0 if none). */
-	static double bestSimilarity(List<RetrievedChunk> sources) {
+	public static double bestSimilarity(List<RetrievedChunk> sources) {
 		return sources.stream().mapToDouble(s -> s.chunk().similarity()).max().orElse(0);
 	}
 

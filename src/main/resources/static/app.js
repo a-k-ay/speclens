@@ -87,9 +87,16 @@ function scrollToBottom() {
 function formatAnswer(text, citedIds, messageId) {
   const inline = (line) => escapeHtml(line)
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\[(S\d+)\]/g, (match, id) => citedIds.has(id)
-      ? `<button type="button" class="cite" data-msg="${messageId}" data-source="${id}" aria-label="Show source ${id}">${id}</button>`
-      : match);
+    // Markers come as [S1] or grouped, [S1, S2] or [S3, TC-I-01]: each cited S-number
+    // becomes a button, anything else in the brackets stays as text.
+    .replace(/\[([^\[\]]{1,80})\]/g, (match, inner) => {
+      const parts = inner.split(",").map((p) => p.trim());
+      if (!parts.some((p) => citedIds.has(p))) return match;
+      const rendered = parts.map((p) => citedIds.has(p)
+        ? `<button type="button" class="cite" data-msg="${messageId}" data-source="${p}" aria-label="Show source ${p}">${p}</button>`
+        : p);
+      return parts.every((p) => citedIds.has(p)) ? rendered.join("") : `[${rendered.join(", ")}]`;
+    });
 
   const html = [];
   let list = null;

@@ -48,6 +48,11 @@ public final class GroundedPrompt {
 	}
 
 	static String userMessage(String question, List<RetrievedChunk> sources, List<GlossaryTerm> definitions) {
+		return context(sources, definitions) + "Question: " + question;
+	}
+
+	/** The numbered source blocks and any definitions; shared with the traceability prompt. */
+	public static String context(List<RetrievedChunk> sources, List<GlossaryTerm> definitions) {
 		StringBuilder sb = new StringBuilder("Sources:\n\n");
 		for (int i = 0; i < sources.size(); i++) {
 			var chunk = sources.get(i).chunk();
@@ -65,7 +70,7 @@ public final class GroundedPrompt {
 			}
 			sb.append('\n');
 		}
-		return sb.append("Question: ").append(question).toString();
+		return sb.toString();
 	}
 
 	/**

@@ -6,10 +6,14 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** Reads [S1]-style markers out of the model's answer. */
+/**
+ * Reads source markers out of the model's answer. Models write them as [S1] or grouped,
+ * [S1, S2] or [S3, TC-I-01], so every S-number inside any square brackets counts.
+ */
 final class CitationParser {
 
-	private static final Pattern MARKER = Pattern.compile("\\[S(\\d+)]");
+	private static final Pattern BRACKETS = Pattern.compile("\\[([^\\[\\]]{1,80})]");
+	private static final Pattern SOURCE = Pattern.compile("\\bS(\\d+)\\b");
 
 	private CitationParser() {
 	}
@@ -21,11 +25,14 @@ final class CitationParser {
 	 */
 	static List<Integer> citedSourceIndexes(String answer, int sourceCount) {
 		Set<Integer> indexes = new LinkedHashSet<>();
-		Matcher m = MARKER.matcher(answer);
-		while (m.find()) {
-			int index = Integer.parseInt(m.group(1)) - 1;
-			if (index >= 0 && index < sourceCount) {
-				indexes.add(index);
+		Matcher brackets = BRACKETS.matcher(answer);
+		while (brackets.find()) {
+			Matcher m = SOURCE.matcher(brackets.group(1));
+			while (m.find()) {
+				int index = Integer.parseInt(m.group(1)) - 1;
+				if (index >= 0 && index < sourceCount) {
+					indexes.add(index);
+				}
 			}
 		}
 		return List.copyOf(indexes);

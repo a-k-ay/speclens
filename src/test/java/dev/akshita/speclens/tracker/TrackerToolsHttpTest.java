@@ -2,24 +2,18 @@ package dev.akshita.speclens.tracker;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import dev.akshita.speclens.IntegrationTest;
-import dev.akshita.speclens.TestcontainersConfiguration;
+import dev.akshita.speclens.HttpIntegrationTest;
 import dev.akshita.speclens.tracker.ToolCallRecord.Outcome;
 import dev.akshita.speclens.tracker.TrackerModels.Ticket;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 
 /**
  * The tools calling the mock tracker over real HTTP: the app starts its web server on a
  * random port and TrackerClient reaches /mock-tracker through it, exactly as in production.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-@Import({ TestcontainersConfiguration.class, IntegrationTest.FakeAiConfiguration.class })
+@HttpIntegrationTest
 class TrackerToolsHttpTest {
 
 	@Autowired

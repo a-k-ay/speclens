@@ -58,7 +58,7 @@ class AskApiIntegrationTest {
 		chatModel.reply("Daily dashboard [S1].");
 		ask(projectId, "Which dashboard do managers see?").exchange();
 
-		var prompt = chatModel.prompts().getFirst();
+		var prompt = chatModel.answerPrompts().getFirst();
 		assertThat(prompt.getSystemMessage().getText()).contains("Answer ONLY from the sources");
 		assertThat(prompt.getUserMessage().getText())
 				.contains("<source id=\"S1\" document=\"northwind-brd.pdf\"")
@@ -75,7 +75,7 @@ class AskApiIntegrationTest {
 
 		ask(project, "How soon after delivery is the invoice generated?").exchange();
 
-		assertThat(chatModel.prompts().getFirst().getUserMessage().getText())
+		assertThat(chatModel.answerPrompts().getFirst().getUserMessage().getText())
 				.contains("- e-POD: electronic proof of delivery (from glossary.pdf)");
 	}
 
@@ -113,7 +113,7 @@ class AskApiIntegrationTest {
 				.bodyJson()
 				.hasPathSatisfying("$.answered", v -> v.assertThat().isEqualTo(false))
 				.hasPathSatisfying("$.refusalReason", v -> v.assertThat().isEqualTo("NO_RELEVANT_SOURCES"));
-		assertThat(chatModel.prompts()).isEmpty();
+		assertThat(chatModel.answerPrompts()).isEmpty();
 	}
 
 	@Test
@@ -123,7 +123,7 @@ class AskApiIntegrationTest {
 
 		ask(projectId, "What is the zebra pricing?").exchange();
 
-		assertThat(chatModel.prompts().getFirst().getUserMessage().getText())
+		assertThat(chatModel.answerPrompts().getFirst().getUserMessage().getText())
 				.doesNotContain("Zebra").doesNotContain("secret.pdf");
 	}
 

@@ -58,6 +58,13 @@ class GroundedPromptTest {
 	}
 
 	@Test
+	void groupedMarkersAsGeminiWritesThemAreRead() {
+		String answer = "Updated to 48 hours [S1, S2]. UAT failed [S3, TC-I-01]. Unrelated [LOG-142].";
+
+		assertThat(CitationParser.citedSourceIndexes(answer, 5)).containsExactly(0, 1, 2);
+	}
+
+	@Test
 	void refusalIsRecognisedWithOrWithoutFullStop() {
 		assertThat(CitationParser.isRefusal("Not found in the uploaded documents.")).isTrue();
 		assertThat(CitationParser.isRefusal("  Not found in the uploaded documents\n")).isTrue();

@@ -10,6 +10,15 @@ public enum RefusalReason {
 	NOT_IN_SOURCES,
 
 	/** The model answered without citing any real source, so the answer was withheld. */
-	UNGROUNDED_ANSWER
+	UNGROUNDED_ANSWER,
+
+	/** The question isn't about this project (intent OUT_OF_SCOPE). */
+	OUT_OF_SCOPE,
+
+	/** The answer mentioned a ticket, test or status that no tracker tool returned, so it was withheld. */
+	UNVERIFIED_TRACKER_DATA,
+
+	/** The tracker had nothing that answers the question. */
+	NOT_IN_TRACKER
 
 }

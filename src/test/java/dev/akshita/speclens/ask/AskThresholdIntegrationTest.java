@@ -49,7 +49,7 @@ class AskThresholdIntegrationTest {
 				.bodyJson()
 				.hasPathSatisfying("$.answered", v -> v.assertThat().isEqualTo(false))
 				.hasPathSatisfying("$.refusalReason", v -> v.assertThat().isEqualTo("NO_RELEVANT_SOURCES"));
-		assertThat(chatModel.prompts()).isEmpty();
+		assertThat(chatModel.answerPrompts()).isEmpty();
 	}
 
 }

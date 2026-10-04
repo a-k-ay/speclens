@@ -1,6 +1,8 @@
 package dev.akshita.speclens.tracker;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -38,6 +40,8 @@ public class TrackerTools {
 
 	private final TrackerClient client;
 	private final List<ToolCallRecord> calls = new CopyOnWriteArrayList<>();
+	private final Map<String, Ticket> ticketsSeen = new ConcurrentHashMap<>();
+	private final Map<String, TestRun> testRunsSeen = new ConcurrentHashMap<>();
 
 	public TrackerTools(TrackerClient client) {
 		this.client = client;
@@ -48,6 +52,7 @@ public class TrackerTools {
 	public TicketResult getTicket(@ToolParam(description = "Ticket key such as LOG-142") String ticketId) {
 		return run("getTicket", "ticketId=" + ticketId, () -> {
 			var ticket = client.ticket(TrackerIds.ticket(ticketId));
+			ticket.ifPresent(this::remember);
 			return ticket.map(t -> new Result<>(new TicketResult(true, t, null), Outcome.OK, describe(t)))
 					.orElseGet(() -> new Result<>(new TicketResult(false, null, "No ticket " + ticketId),
 							Outcome.NOT_FOUND, "not found"));
@@ -60,6 +65,7 @@ public class TrackerTools {
 			@ToolParam(description = "Requirement ID such as BR-8.1, NFR-4 or CR-003") String requirementId) {
 		return run("getTicketsForRequirement", "requirementId=" + requirementId, () -> {
 			List<Ticket> tickets = client.search(TrackerIds.requirement(requirementId), null, null);
+			tickets.forEach(this::remember);
 			return new Result<>(new TicketsResult(tickets.size(), tickets, null), Outcome.OK, describe(tickets));
 		}, error -> new TicketsResult(0, List.of(), error));
 	}
@@ -79,6 +85,7 @@ public class TrackerTools {
 				sp = client.project().currentSprint();
 			}
 			List<Ticket> tickets = client.search(null, s, sp);
+			tickets.forEach(this::remember);
 			return new Result<>(new TicketsResult(tickets.size(), tickets, null), Outcome.OK, describe(tickets));
 		}, error -> new TicketsResult(0, List.of(), error));
 	}
@@ -89,6 +96,7 @@ public class TrackerTools {
 			@ToolParam(description = "Requirement ID such as BR-8.1 or CR-003") String requirementId) {
 		return run("getUatResults", "requirementId=" + requirementId, () -> {
 			List<TestRun> runs = client.testRuns(TrackerIds.requirement(requirementId));
+			runs.forEach(r -> testRunsSeen.put(r.testCase(), r));
 			String detail = runs.isEmpty() ? "no UAT runs"
 					: runs.stream().map(r -> r.testCase() + " " + r.status()).collect(Collectors.joining(", "));
 			return new Result<>(new TestRunsResult(runs.size(), runs, null), Outcome.OK, detail);
@@ -98,6 +106,20 @@ public class TrackerTools {
 	/** Every call made so far, in order. */
 	public List<ToolCallRecord> calls() {
 		return List.copyOf(calls);
+	}
+
+	/** Every ticket any tool returned, by key: the only tickets an answer may talk about. */
+	public Map<String, Ticket> ticketsSeen() {
+		return Map.copyOf(ticketsSeen);
+	}
+
+	/** Every UAT run any tool returned, by test case id. */
+	public Map<String, TestRun> testRunsSeen() {
+		return Map.copyOf(testRunsSeen);
+	}
+
+	private void remember(Ticket ticket) {
+		ticketsSeen.put(ticket.key(), ticket);
 	}
 
 	/** True if any call found the tracker down, so the answer can say live data is missing. */
